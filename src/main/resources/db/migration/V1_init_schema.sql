@@ -1,0 +1,210 @@
+-- =====================================================
+-- MoongCheap DDL v3 (수정 반영)
+-- 인증 · 회원 도메인 범위로 축소
+-- 삭제: GroupBuyLikes, Orders, Billing, demand, Payments, demand_board,
+--       CustomerKey, Products, GroupBuy, product, Untitled
+-- 예외 유지: SellerInfo (판매자 정산·PG 등록 정보, 회원 도메인과 직접 연관되어 삭제하지 않음)
+--
+-- v3 대비 변경
+--   1. member.name(BYTEA, 실명) -> member.nickname(VARCHAR(20)) 로 정정
+--      BYTEA + UNIQUE 조합은 암호화 특성상 제약이 무의미해지므로 평문 VARCHAR로 변경
+--      nickname unique 도 활성 회원(deleted_at IS NULL) 한정으로 통일
+--   2. notification_opt_out PK 순서 (type, member_id) -> (member_id, type)
+--      주 조회 패턴(회원별 알림 수신 거부 전체 조회)이 선두 컬럼으로 인덱스를 타도록 수정
+-- =====================================================
+
+CREATE TABLE member_local (
+    id                  BIGINT       NOT NULL,
+    member_id           BIGINT       NOT NULL,
+    password            VARCHAR(255) NOT NULL,
+    password_updated_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    created_at          TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
+CREATE TABLE member_social (
+    id          BIGINT       NOT NULL,
+    member_id   BIGINT       NOT NULL,
+    provider    VARCHAR(20)  NOT NULL,
+    provider_id VARCHAR(255) NOT NULL,
+    created_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
+CREATE TABLE notification_event (
+    id           BIGINT       NOT NULL,
+    type         VARCHAR(40)  NOT NULL,
+    title        VARCHAR(100) NOT NULL,
+    body         VARCHAR(500) NOT NULL,
+    link_url     VARCHAR(255) NULL,
+    is_mandatory BOOLEAN      NOT NULL DEFAULT FALSE,
+    event_key    VARCHAR(100) NOT NULL,
+    created_at   TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    updated_at   TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
+CREATE TABLE category (
+    id         BIGINT      NOT NULL,
+    parent_id  BIGINT      NULL,
+    name       VARCHAR(50) NOT NULL,
+    depth      SMALLINT    NOT NULL,
+    is_active  BOOLEAN     NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+
+CREATE TABLE member (
+    id            BIGINT       NOT NULL,
+    login_id      VARCHAR(20)  NULL,
+    nickname      VARCHAR(20)  NOT NULL,
+    phone_number  TEXT         NULL,
+    email         VARCHAR(255) NULL,
+    is_seller     BOOLEAN      NOT NULL DEFAULT FALSE,
+    last_login_at TIMESTAMPTZ  NULL,
+    created_at    TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    updated_at    TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    deleted_at    TIMESTAMPTZ  NULL
+);
+
+CREATE TABLE notification_opt_out (
+    member_id   BIGINT      NOT NULL,
+    type        VARCHAR(40) NOT NULL,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE seller_interest_category (
+    seller_id   BIGINT      NOT NULL,
+    category_id BIGINT      NOT NULL,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE shipping_address (
+    id               BIGINT      NOT NULL,
+    member_id        BIGINT      NOT NULL,
+    is_default       BOOLEAN     NULL,
+    alias            VARCHAR(30) NOT NULL,
+    recipient_name   VARCHAR(50) NOT NULL,
+    phone_number     TEXT        NOT NULL,
+    zipcode          VARCHAR(5)  NOT NULL,
+    address          VARCHAR(255) NOT NULL,
+    address_detail   VARCHAR(100) NULL,
+    request_message  VARCHAR(100) NULL,
+    created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE seller (
+    id                              BIGINT      NOT NULL,
+    member_id                       BIGINT      NOT NULL,
+    business_name                   VARCHAR(50) NOT NULL,
+    business_number                 TEXT        NOT NULL,
+    business_number_hash            CHAR(64)    NOT NULL,
+    mail_order_registration_number  VARCHAR(30) NOT NULL,
+    owner_name                      VARCHAR(50) NOT NULL,
+    phone_number                    VARCHAR(20) NOT NULL,
+    seller_status                   VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    approved_at                     TIMESTAMPTZ NULL,
+    bank_name                       VARCHAR(50) NOT NULL,
+    bank_account                    TEXT        NOT NULL,
+    depositor_name                  VARCHAR(50) NOT NULL,
+    created_at                      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at                      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at                      TIMESTAMPTZ NULL
+);
+
+CREATE TABLE notification (
+    id                    BIGINT      NOT NULL,
+    notification_event_id BIGINT      NOT NULL,
+    member_id             BIGINT      NOT NULL,
+    is_read               BOOLEAN     NOT NULL DEFAULT FALSE,
+    read_at               TIMESTAMPTZ NULL,
+    created_at            TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE member_local ADD CONSTRAINT PK_MEMBER_LOCAL PRIMARY KEY (id);
+ALTER TABLE member_social ADD CONSTRAINT PK_MEMBER_SOCIAL PRIMARY KEY (id);
+ALTER TABLE notification_event ADD CONSTRAINT PK_NOTIFICATION_EVENT PRIMARY KEY (id);
+ALTER TABLE category ADD CONSTRAINT PK_CATEGORY PRIMARY KEY (id);
+ALTER TABLE member ADD CONSTRAINT PK_MEMBER PRIMARY KEY (id);
+ALTER TABLE notification_opt_out ADD CONSTRAINT PK_NOTIFICATION_OPT_OUT PRIMARY KEY (member_id, type);
+ALTER TABLE seller_interest_category ADD CONSTRAINT PK_SELLER_INTEREST_CATEGORY PRIMARY KEY (seller_id, category_id);
+ALTER TABLE shipping_address ADD CONSTRAINT PK_SHIPPING_ADDRESS PRIMARY KEY (id);
+ALTER TABLE seller ADD CONSTRAINT PK_SELLER PRIMARY KEY (id);
+ALTER TABLE notification ADD CONSTRAINT PK_NOTIFICATION PRIMARY KEY (id);
+
+ALTER TABLE member_local ADD CONSTRAINT FK_member_TO_member_local_1 FOREIGN KEY (member_id) REFERENCES member (id);
+ALTER TABLE member_social ADD CONSTRAINT FK_member_TO_member_social_1 FOREIGN KEY (member_id) REFERENCES member (id);
+ALTER TABLE category ADD CONSTRAINT FK_category_TO_category_1 FOREIGN KEY (parent_id) REFERENCES category (id);
+ALTER TABLE notification_opt_out ADD CONSTRAINT FK_member_TO_notification_opt_out FOREIGN KEY (member_id) REFERENCES member (id);
+ALTER TABLE seller_interest_category ADD CONSTRAINT FK_seller_TO_seller_interest_category_1 FOREIGN KEY (seller_id) REFERENCES seller (id);
+ALTER TABLE seller_interest_category ADD CONSTRAINT FK_category_TO_seller_interest_category_1 FOREIGN KEY (category_id) REFERENCES category (id);
+ALTER TABLE shipping_address ADD CONSTRAINT FK_member_TO_shipping_address_1 FOREIGN KEY (member_id) REFERENCES member (id);
+ALTER TABLE seller ADD CONSTRAINT FK_member_TO_seller_1 FOREIGN KEY (member_id) REFERENCES member (id);
+ALTER TABLE notification ADD CONSTRAINT FK_notification_event_TO_notification_1 FOREIGN KEY (notification_event_id) REFERENCES notification_event (id);
+ALTER TABLE notification ADD CONSTRAINT FK_member_TO_notification_1 FOREIGN KEY (member_id) REFERENCES member (id);
+
+
+-- ============================================================================
+-- UNIQUE / INDEX 제약
+-- ERD에 첨부된 노란색 메모를 근거로 작성. PostgreSQL 기준(부분 인덱스 WHERE 절 사용).
+-- ============================================================================
+
+-- ----------------------------------------------------------------------------
+-- category
+-- 메모: "unique: COALESCE(parent_id, 0), name"
+-- parent_id가 NULL(최상위 카테고리)인 경우도 동일 부모로 취급하여 이름 중복 방지
+-- ----------------------------------------------------------------------------
+CREATE UNIQUE INDEX UX_category_parent_name ON category (COALESCE(parent_id, 0), name);
+
+-- ----------------------------------------------------------------------------
+-- member
+-- 메모: "unique: 1. login_id where deleted_at is NULL  2. nickname"
+-- 탈퇴 후 재사용을 허용하기 위해 두 unique 모두 활성 회원(deleted_at IS NULL)에 한정한다.
+-- name(BYTEA, 실명) 대신 nickname(VARCHAR, 표시용)으로 정정.
+-- BYTEA 암호화 컬럼에는 unique를 걸어도 매 호출 IV가 달라 값이 같아도 다르게 저장되어
+-- 제약이 사실상 동작하지 않는다.
+-- ----------------------------------------------------------------------------
+CREATE UNIQUE INDEX UX_member_login_id ON member (login_id) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX UX_member_nickname  ON member (nickname)  WHERE deleted_at IS NULL;
+
+-- ----------------------------------------------------------------------------
+-- shipping_address
+-- 메모: "index: 1. member_id"
+-- 메모(비고): 배송지의 경우 주문에서 SNAPSHOT 형태로 저장하기 때문에
+--            삭제 시 물리적 삭제(soft delete 미적용) → deleted_at 컬럼 없음
+-- ----------------------------------------------------------------------------
+CREATE INDEX IX_shipping_address_member_id ON shipping_address (member_id);
+
+CREATE UNIQUE INDEX uk_shipping_address_default ON shipping_address (member_id) WHERE is_default = TRUE;
+
+-- ----------------------------------------------------------------------------
+-- member_local
+-- 메모: "unique: member_id"
+-- ----------------------------------------------------------------------------
+ALTER TABLE member_local ADD CONSTRAINT UX_member_local_member_id UNIQUE (member_id);
+
+-- ----------------------------------------------------------------------------
+-- member_social
+-- 메모: "unique: provider, provider_id"
+-- ----------------------------------------------------------------------------
+ALTER TABLE member_social ADD CONSTRAINT UX_member_social_provider UNIQUE (provider, provider_id);
+
+-- ----------------------------------------------------------------------------
+-- notification_event
+-- 메모: "unique: type, event_key"
+-- ----------------------------------------------------------------------------
+ALTER TABLE notification_event ADD CONSTRAINT UX_notification_event_type_key UNIQUE (type, event_key);
+
+-- ----------------------------------------------------------------------------
+-- notification
+-- 메모: "unique: member_id, notification_event_id"
+-- 메모: "index: member_id, id DESC"
+-- ----------------------------------------------------------------------------
+ALTER TABLE notification ADD CONSTRAINT UX_notification_member_event UNIQUE (member_id, notification_event_id);
+CREATE INDEX IX_notification_member_id_desc ON notification (member_id, id DESC);
+
+-- ----------------------------------------------------------------------------
+-- seller
+-- 메모: "unique: 1. member_id  2. business_number_hash where deleted_at is NULL"
+-- ----------------------------------------------------------------------------
+ALTER TABLE seller ADD CONSTRAINT UX_seller_member_id UNIQUE (member_id);
+CREATE UNIQUE INDEX UX_seller_business_number_hash ON seller (business_number_hash) WHERE deleted_at IS NULL;
