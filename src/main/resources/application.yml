@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: MoongCheap_backend
+  profiles:
+    active: local
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc.time_zone: Asia/Seoul
+        jdbc.batch_size: 50
+        order_inserts: true
+        order_deletes: true
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+
+server:
+  servlet:
+    session:
+      cookie:
+        name: SID
+        http-only: true
+        secure: true
+        same-site: lax
+        path: /
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+    with-credentials: true
+  default-produces-media-type: application/json
+
+moongcheap:
+  security:
+    session:
+      absolute-ttl-default: 24h
+      absolute-ttl-remember-me: 14d
+    login-failure:
+      max-attempts: 5
+      lock-duration: 10m
+    encryption:
+      # 64자 hex 문자열(32바이트) 권장. 프로파일별 파일에서 오버라이드
+      password: "${MOONGCHEAP_ENC_PASSWORD:}"
+      salt: "${MOONGCHEAP_ENC_SALT:}"

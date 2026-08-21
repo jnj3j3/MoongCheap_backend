@@ -1,0 +1,38 @@
+# 시작: docker compose -f docker/docker-compose.local.yml up -d
+# 종료: docker compose -f docker/docker-compose.local.yml stop
+# 전체 삭제(볼륨 포함): docker compose -f docker/docker-compose.local.yml down -v
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: moongcheap-postgres-local
+    environment:
+      POSTGRES_DB: moongcheap
+      POSTGRES_USER: moongcheap
+      POSTGRES_PASSWORD: moongcheap
+    ports:
+      - "5432:5432"
+    volumes:
+      - moongcheap-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moongcheap -d moongcheap"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: moongcheap-redis-local
+    ports:
+      - "6379:6379"
+    volumes:
+      - moongcheap-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  moongcheap-postgres-data:
+  moongcheap-redis-data:

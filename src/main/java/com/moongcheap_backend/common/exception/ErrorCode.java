@@ -1,0 +1,57 @@
+package com.moongcheap_backend.common.exception;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+
+@Getter
+@RequiredArgsConstructor
+public enum ErrorCode {
+
+    // 공통
+    INVALID_INPUT(HttpStatus.BAD_REQUEST, "COMMON_400", "입력값이 올바르지 않습니다."),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON_401", "인증이 필요합니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON_403", "접근 권한이 없습니다."),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "COMMON_404", "리소스를 찾을 수 없습니다."),
+    INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON_500", "서버 오류가 발생했습니다."),
+
+    // Auth
+    LOGIN_ID_DUPLICATED(HttpStatus.CONFLICT, "AUTH_001", "이미 사용 중인 아이디입니다."),
+    LOGIN_ID_INVALID(HttpStatus.BAD_REQUEST, "AUTH_002", "아이디 형식이 올바르지 않습니다."),
+    PASSWORD_INVALID(HttpStatus.BAD_REQUEST, "AUTH_003", "비밀번호 형식이 올바르지 않습니다."),
+    PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "AUTH_004", "비밀번호가 일치하지 않습니다."),
+    PASSWORD_CONTAINS_LOGIN_ID(HttpStatus.BAD_REQUEST, "AUTH_005", "비밀번호에 아이디를 포함할 수 없습니다."),
+    LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH_006", "아이디 또는 비밀번호가 올바르지 않습니다."),
+    LOGIN_LOCKED(HttpStatus.LOCKED, "AUTH_007", "연속 로그인 실패로 계정이 잠겼습니다. 잠시 후 다시 시도해주세요."),
+    LOCAL_CREDENTIAL_REQUIRED(HttpStatus.BAD_REQUEST, "AUTH_008", "비밀번호가 등록된 회원만 사용할 수 있습니다."),
+    PASSWORD_SAME_AS_PREVIOUS(HttpStatus.BAD_REQUEST, "AUTH_009", "이전과 동일한 비밀번호는 사용할 수 없습니다."),
+    OAUTH_STATE_INVALID(HttpStatus.BAD_REQUEST, "AUTH_010", "OAuth 상태값 검증에 실패했습니다."),
+    SOCIAL_ALREADY_LINKED(HttpStatus.CONFLICT, "AUTH_011", "이미 다른 회원에 연동된 소셜 계정입니다."),
+    LAST_CREDENTIAL_CANNOT_UNLINK(HttpStatus.BAD_REQUEST, "AUTH_012", "마지막 로그인 수단은 해제할 수 없습니다."),
+    WITHDRAW_BLOCKED_HAS_ORDER(HttpStatus.BAD_REQUEST, "AUTH_014", "진행 중인 거래가 있어 탈퇴할 수 없습니다."),
+    CONCURRENT_SIGNUP_CONFLICT(HttpStatus.CONFLICT, "AUTH_015", "회원가입에 실패했습니다. 잠시 후 다시 시도해주세요."),
+
+    // Member
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_001", "회원을 찾을 수 없습니다."),
+    NICKNAME_DUPLICATED(HttpStatus.CONFLICT, "USER_002", "이미 사용 중인 닉네임입니다."),
+    NICKNAME_INVALID(HttpStatus.BAD_REQUEST, "USER_003", "닉네임 형식이 올바르지 않습니다."),
+
+    // Shipping
+    SHIPPING_ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "SHIP_001", "배송지를 찾을 수 없습니다."),
+    SHIPPING_ADDRESS_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "SHIP_002", "배송지는 최대 5개까지 등록할 수 있습니다."),
+    SHIPPING_ADDRESS_FORBIDDEN(HttpStatus.FORBIDDEN, "SHIP_003", "본인 소유의 배송지가 아닙니다."),
+
+    // Seller
+    SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "SELLER_001", "이미 판매자로 등록되어 있습니다."),
+    BUSINESS_NUMBER_INVALID(HttpStatus.BAD_REQUEST, "SELLER_002", "사업자등록번호 형식이 올바르지 않습니다."),
+    BUSINESS_NUMBER_DUPLICATED(HttpStatus.CONFLICT, "SELLER_003", "이미 등록된 사업자등록번호입니다."),
+    SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "SELLER_004", "판매자 정보를 찾을 수 없습니다."),
+    SELLER_INTEREST_CATEGORY_REQUIRED(HttpStatus.BAD_REQUEST, "SELLER_005", "관심 카테고리는 최소 1개 이상 지정해야 합니다."),
+    SELLER_INTEREST_CATEGORY_LIMIT(HttpStatus.BAD_REQUEST, "SELLER_006", "관심 카테고리는 최대 10개까지 지정할 수 있습니다."),
+    SELLER_MUTABLE_FIELD_ONLY(HttpStatus.BAD_REQUEST, "SELLER_007", "해당 필드는 수정할 수 없습니다."),
+    SELLER_NOT_APPROVED(HttpStatus.FORBIDDEN, "SELLER_008", "승인된 판매자만 사용할 수 있습니다.");
+
+    private final HttpStatus status;
+    private final String code;
+    private final String message;
+}
