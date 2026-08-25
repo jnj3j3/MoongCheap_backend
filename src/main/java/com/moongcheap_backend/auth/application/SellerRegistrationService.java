@@ -52,7 +52,6 @@ public class SellerRegistrationService {
             throw new BusinessException(ErrorCode.BUSINESS_NUMBER_DUPLICATED);
         }
         String mailOrder = request.mailOrderRegistrationNumber().replaceAll("\\s+", "");
-        String accountDigits = request.accountNumber().replaceAll("[^0-9]", "");
 
         Seller seller = Seller.builder()
                 .memberId(memberId)
@@ -62,9 +61,6 @@ public class SellerRegistrationService {
                 .mailOrderRegistrationNumber(mailOrder)
                 .ownerName(request.ownerName().trim())
                 .phoneNumber(request.phoneNumber().replaceAll("[^0-9]", ""))
-                .bankName(request.bankName().trim())
-                .bankAccount(encryptionService.encrypt(accountDigits))
-                .depositorName(request.depositorName().trim())
                 .build();
         seller.approve();
         sellerRepository.save(seller);
@@ -82,7 +78,7 @@ public class SellerRegistrationService {
         SessionPrincipal refreshed = principalFactory.build(member);
         sessionManager.refreshPrincipal(httpRequest, refreshed);
         return seller.getId();
-    }   
+    }
 
     private void validateInterestCategories(List<Long> categoryIds) {
         if (categoryIds == null || categoryIds.isEmpty()) {

@@ -43,15 +43,6 @@ public class Seller extends BaseTimeEntity {
     @Column(name = "phone_number", nullable = false, length = 20)
     private String phoneNumber;
 
-    @Column(name = "bank_name", nullable = false, length = 50)
-    private String bankName;
-
-    @Column(name = "bank_account", nullable = false, length = 512)
-    private String bankAccount;
-
-    @Column(name = "depositor_name", nullable = false, length = 50)
-    private String depositorName;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "seller_status", nullable = false, length = 20)
     private SellerStatus status;
@@ -64,8 +55,7 @@ public class Seller extends BaseTimeEntity {
 
     @Builder
     private Seller(Long memberId, String businessName, String businessNumber, String businessNumberHash,
-                   String mailOrderRegistrationNumber, String ownerName, String phoneNumber,
-                   String bankName, String bankAccount, String depositorName) {
+                   String mailOrderRegistrationNumber, String ownerName, String phoneNumber) {
         this.memberId = memberId;
         this.businessName = businessName;
         this.businessNumber = businessNumber;
@@ -73,22 +63,12 @@ public class Seller extends BaseTimeEntity {
         this.mailOrderRegistrationNumber = mailOrderRegistrationNumber;
         this.ownerName = ownerName;
         this.phoneNumber = phoneNumber;
-        this.bankName = bankName;
-        this.bankAccount = bankAccount;
-        this.depositorName = depositorName;
         this.status = SellerStatus.PENDING;
     }
 
     public void approve() {
         this.status = SellerStatus.APPROVED;
         this.approvedAt = LocalDateTime.now();
-    }
-
-    public void updateMutable(String phoneNumber, String bankName, String bankAccount, String depositorName) {
-        if (phoneNumber != null) this.phoneNumber = phoneNumber;
-        if (bankName != null) this.bankName = bankName;
-        if (bankAccount != null) this.bankAccount = bankAccount;
-        if (depositorName != null) this.depositorName = depositorName;
     }
 
     public void softDelete() {

@@ -103,9 +103,6 @@ CREATE TABLE seller (
     phone_number                    VARCHAR(20) NOT NULL,
     seller_status                   VARCHAR(20) NOT NULL DEFAULT 'PENDING',
     approved_at                     TIMESTAMPTZ NULL,
-    bank_name                       VARCHAR(50) NOT NULL,
-    bank_account                    TEXT        NOT NULL,
-    depositor_name                  VARCHAR(50) NOT NULL,
     created_at                      TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at                      TIMESTAMPTZ NOT NULL DEFAULT now(),
     deleted_at                      TIMESTAMPTZ NULL
