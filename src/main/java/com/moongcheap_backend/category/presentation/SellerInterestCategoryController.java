@@ -1,6 +1,5 @@
 package com.moongcheap_backend.category.presentation;
 
-import com.moongcheap_backend.common.response.ApiResponse;
 import com.moongcheap_backend.common.security.SessionPrincipal;
 import com.moongcheap_backend.category.presentation.dto.InterestCategoryUpdateRequest;
 import com.moongcheap_backend.category.application.SellerInterestCategoryService;
@@ -28,16 +27,15 @@ public class SellerInterestCategoryController {
 
     @Operation(summary = "관심 카테고리 목록", description = "User-08. 현재 지정된 카테고리 ID 목록.")
     @GetMapping
-    public ResponseEntity<ApiResponse<Map<String, List<Long>>>> list(SessionPrincipal principal) {
-        return ResponseEntity.ok(ApiResponse.ok(
-                Map.of("categoryIds", sellerInterestCategoryService.getAll(principal.memberId()))));
+    public ResponseEntity<Map<String, List<Long>>> list(SessionPrincipal principal) {
+        return ResponseEntity.ok(Map.of("categoryIds", sellerInterestCategoryService.getAll(principal.memberId())));
     }
 
     @Operation(summary = "관심 카테고리 전체 교체", description = "User-08. 최소 1개, 최대 10개. 마지막 1개 삭제 차단.")
     @PutMapping
-    public ResponseEntity<ApiResponse<Void>> edit(SessionPrincipal principal,
-                                                  @RequestBody @Valid InterestCategoryUpdateRequest request) {
+    public ResponseEntity<Void> edit(SessionPrincipal principal,
+                                     @RequestBody @Valid InterestCategoryUpdateRequest request) {
         sellerInterestCategoryService.update(principal.memberId(), request.categoryIds());
-        return ResponseEntity.ok(ApiResponse.ok());
+        return ResponseEntity.noContent().build();
     }
 }
