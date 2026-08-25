@@ -1,6 +1,5 @@
 package com.moongcheap_backend.member.presentation;
 
-import com.moongcheap_backend.common.response.ApiResponse;
 import com.moongcheap_backend.common.security.SessionPrincipal;
 import com.moongcheap_backend.member.presentation.dto.ProfileEditRequest;
 import com.moongcheap_backend.member.presentation.dto.ProfileResponse;
@@ -26,14 +25,14 @@ public class ProfileController {
 
     @Operation(summary = "내 프로필 조회", description = "User-01. 본인 프로필 상세 (연락처는 마스킹).")
     @GetMapping
-    public ResponseEntity<ApiResponse<ProfileResponse>> detail(SessionPrincipal principal) {
-        return ResponseEntity.ok(ApiResponse.ok(profileService.detail(principal.memberId())));
+    public ResponseEntity<ProfileResponse> detail(SessionPrincipal principal) {
+        return ResponseEntity.ok(profileService.detail(principal.memberId()));
     }
 
     @Operation(summary = "내 프로필 수정", description = "User-02. 닉네임/연락처/이메일/프로필 이미지 PATCH.")
     @PatchMapping
-    public ResponseEntity<ApiResponse<Void>> edit(SessionPrincipal principal, @RequestBody @Valid ProfileEditRequest request) {
+    public ResponseEntity<Void> edit(SessionPrincipal principal, @RequestBody @Valid ProfileEditRequest request) {
         profileService.edit(principal.memberId(), request);
-        return ResponseEntity.ok(ApiResponse.ok());
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,7 +1,6 @@
 package com.moongcheap_backend.member.presentation;
 
 import com.moongcheap_backend.auth.application.NicknameService;
-import com.moongcheap_backend.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +22,8 @@ public class NicknameController {
 
     @Operation(summary = "닉네임 중복 검사", description = "User-03. 정규화 후 활성 회원 기준 중복 여부 반환.")
     @GetMapping("/availability")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> detail(@RequestParam String nickname) {
+    public ResponseEntity<Map<String, Object>> detail(@RequestParam String nickname) {
         boolean available = nicknameService.isAvailable(nickname);
-        return ResponseEntity.ok(ApiResponse.ok(Map.of("nickname", nickname, "available", available)));
+        return ResponseEntity.ok(Map.of("nickname", nickname, "available", available));
     }
 }

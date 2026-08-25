@@ -1,6 +1,5 @@
 package com.moongcheap_backend.notification.presentation;
 
-import com.moongcheap_backend.common.response.ApiResponse;
 import com.moongcheap_backend.common.security.SessionPrincipal;
 import com.moongcheap_backend.notification.domain.NotificationType;
 import com.moongcheap_backend.notification.presentation.dto.NotificationSettingEditRequest;
@@ -30,16 +29,16 @@ public class NotificationSettingController {
 
     @Operation(summary = "알림 수신 설정 목록", description = "User-11. 전체 알림 유형과 현재 수신 여부 반환.")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<NotificationSettingResponse>>> list(SessionPrincipal principal) {
-        return ResponseEntity.ok(ApiResponse.ok(notificationSettingService.getAll(principal.memberId())));
+    public ResponseEntity<List<NotificationSettingResponse>> list(SessionPrincipal principal) {
+        return ResponseEntity.ok(notificationSettingService.getAll(principal.memberId()));
     }
 
     @Operation(summary = "알림 유형별 설정 변경", description = "User-11. 거래 필수 알림은 해제 불가.")
     @PatchMapping("/{type}")
-    public ResponseEntity<ApiResponse<Void>> edit(SessionPrincipal principal,
-                                                  @PathVariable String type,
-                                                  @RequestBody @Valid NotificationSettingEditRequest request) {
+    public ResponseEntity<Void> edit(SessionPrincipal principal,
+                                     @PathVariable String type,
+                                     @RequestBody @Valid NotificationSettingEditRequest request) {
         notificationSettingService.edit(principal.memberId(), NotificationType.valueOf(type.toUpperCase()), request.enabled());
-        return ResponseEntity.ok(ApiResponse.ok());
+        return ResponseEntity.noContent().build();
     }
 }

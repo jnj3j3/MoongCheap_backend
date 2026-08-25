@@ -6,7 +6,6 @@ import com.moongcheap_backend.common.exception.ErrorCode;
 import com.moongcheap_backend.member.domain.Seller;
 import com.moongcheap_backend.member.infrastructure.SellerRepository;
 import com.moongcheap_backend.member.presentation.dto.SellerPublicResponse;
-import com.moongcheap_backend.member.presentation.dto.SettlementAccountInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,21 +29,6 @@ public class SellerPublicService {
                 encryptionService.maskBusinessNumber(bizPlain),
                 seller.getMailOrderRegistrationNumber(),
                 seller.getPhoneNumber()
-        );
-    }
-
-    @Transactional(readOnly = true)
-    public SettlementAccountInfo getForSettlement(Long sellerId) {
-        Seller seller = sellerRepository.findByIdAndDeletedAtIsNull(sellerId)
-                .filter(Seller::isSellable)
-                .orElseThrow(() -> new BusinessException(ErrorCode.SELLER_NOT_APPROVED));
-        return new SettlementAccountInfo(
-                seller.getId(),
-                seller.getBankName(),
-                encryptionService.decrypt(seller.getBankAccount()),
-                seller.getDepositorName(),
-                encryptionService.decrypt(seller.getBusinessNumber()),
-                seller.getBusinessName()
         );
     }
 
