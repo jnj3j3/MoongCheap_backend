@@ -31,6 +31,6 @@ public class CustomerKey extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Column(name = "customer_key",  unique = true)
+    @Column(name = "customer_key", nullable = false, unique = true)
     private String customerKey;
 }

@@ -3,6 +3,8 @@ package com.moongcheap_backend.groupbuy.domain;
 import com.moongcheap_backend.common.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,14 +25,14 @@ public class GroupBuy extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "seller_id")
+    @Column(name = "seller_id", nullable = false)
     private Long sellerId;
 
-    @Column(name = "product_id")
+    @Column(name = "product_id", nullable = false)
     private Long productId;
 
     //판매페이지이름
-    @Column(name = "title")
+    @Column(name = "title", nullable = false)
     private String title;
 
     //목표 인원수
@@ -46,6 +48,7 @@ public class GroupBuy extends BaseTimeEntity {
     private LocalDateTime groupBuyEndAt;
 
     //공동구매 상태
-    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 30)
     private GroupBuyStatus status;
 }

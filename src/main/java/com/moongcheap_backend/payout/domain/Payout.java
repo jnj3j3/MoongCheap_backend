@@ -3,11 +3,12 @@ package com.moongcheap_backend.payout.domain;
 import com.moongcheap_backend.common.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,11 +25,11 @@ public class Payout extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "seller_id")
+    @Column(name = "seller_id", nullable = false)
     private Long sellerId;
 
     //지급요청식별자
-    @Column(name = "ref_payout_id", unique = true)
+    @Column(name = "ref_payout_id", unique = true, length = 50)
     private String refPayoutId;
 
     //PG사 판매자 식별자
@@ -48,6 +49,7 @@ public class Payout extends BaseTimeEntity {
     private LocalDateTime requestAt;
 
     //정산 상태
-    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
     private PayoutStatus status;
 }

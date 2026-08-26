@@ -4,6 +4,8 @@ import com.moongcheap_backend.common.entity.BaseTimeEntity;
 import com.moongcheap_backend.member.domain.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,7 +14,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import javax.print.DocFlavor.STRING;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,25 +32,27 @@ public class BrandPayMethod extends BaseTimeEntity {
     private Member member;
 
     //자동결제키
-    @Column(name = "method_key", unique = true)
+    @Column(name = "method_key", nullable = false, unique = true)
     private String methodKey;
 
     //은행/카드사 코드
-    @Column(name = "provider_code")
-    private ProviderCode providerCode;
+    @Column(name = "provider_code", nullable = false, length = 50)
+    private String providerCode;
 
     //계좌/카드번호
-    @Column(name = "masked_number")
+    @Column(name = "masked_number", nullable = false)
     private String maskedNumber;
 
     //결제수단 타입
-    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, length = 20)
     private PaymentType type;
 
-    @Column(name = "is_default")
+    @Column(name = "is_default", nullable = false)
     private Boolean isDefault;
 
-    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
     private PaymentsMethodStatus status;
 
     //MVP에서만 사용
@@ -57,11 +60,4 @@ public class BrandPayMethod extends BaseTimeEntity {
     @Column(name = "end_at")
     private LocalDateTime endAt;
 
-    //카드 비밀번호 앞 2자리
-    @Column(name = "password")
-    private String password;
-
-    //CVC번호
-    @Column(name = "cvc_num")
-    private String cvcNum;
 }
