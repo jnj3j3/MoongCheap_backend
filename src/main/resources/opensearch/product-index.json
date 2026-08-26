@@ -1,0 +1,45 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0,
+      "max_ngram_diff": 1
+    },
+    "analysis": {
+      "tokenizer": {
+        "product_name_ngram_tokenizer": {
+          "type": "ngram",
+          "min_gram": 2,
+          "max_gram": 3,
+          "token_chars": ["letter", "digit"]
+        }
+      },
+      "analyzer": {
+        "product_name_ngram_analyzer": {
+          "type": "custom",
+          "tokenizer": "product_name_ngram_tokenizer",
+          "filter": ["lowercase"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": { "type": "long" },
+      "name": {
+        "type": "text",
+        "analyzer": "standard",
+        "fields": {
+          "ngram": {
+            "type": "text",
+            "analyzer": "product_name_ngram_analyzer"
+          },
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      }
+    }
+  }
+}
