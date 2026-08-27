@@ -40,6 +40,7 @@ public class OrderMemberInfoService {
                         address.getZipcode(),
                         address.getAddress(),
                         address.getAddressDetail(),
+                        address.getEntranceCode(),
                         address.getRequestMessage()
                 )
         );
