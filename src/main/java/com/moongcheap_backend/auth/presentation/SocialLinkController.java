@@ -3,7 +3,6 @@ package com.moongcheap_backend.auth.presentation;
 import com.moongcheap_backend.auth.application.SocialLinkService;
 import com.moongcheap_backend.common.exception.BusinessException;
 import com.moongcheap_backend.common.exception.ErrorCode;
-import com.moongcheap_backend.common.response.ApiResponse;
 import com.moongcheap_backend.common.security.SessionPrincipal;
 import com.moongcheap_backend.member.domain.SocialProvider;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,9 +35,9 @@ public class SocialLinkController {
 
     @Operation(summary = "소셜 계정 연동 해제", description = "Auth-09. 남는 로그인 수단이 최소 1개일 때만 허용.")
     @DeleteMapping("/{provider}")
-    public ResponseEntity<ApiResponse<Void>> delete(SessionPrincipal principal, @PathVariable String provider) {
+    public ResponseEntity<Void> delete(SessionPrincipal principal, @PathVariable String provider) {
         socialLinkService.unlink(principal.memberId(), resolveProvider(provider));
-        return ResponseEntity.ok(ApiResponse.ok());
+        return ResponseEntity.noContent().build();
     }
 
     private SocialProvider resolveProvider(String provider) {

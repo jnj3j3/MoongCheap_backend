@@ -59,6 +59,7 @@ public class ShippingAddressService {
                 .zipcode(request.zipcode())
                 .address(request.address())
                 .addressDetail(request.addressDetail())
+                .entranceCode(request.entranceCode())
                 .requestMessage(request.requestMessage())
                 .isDefault(shouldBeDefault)
                 .build());
@@ -76,6 +77,7 @@ public class ShippingAddressService {
                 request.zipcode(),
                 request.address(),
                 request.addressDetail(),
+                request.entranceCode(),
                 request.requestMessage()
         );
     }
@@ -117,6 +119,7 @@ public class ShippingAddressService {
                 a.getZipcode(),
                 a.getAddress(),
                 a.getAddressDetail(),
+                a.getEntranceCode(),
                 a.getRequestMessage(),
                 a.isDefault()
         );

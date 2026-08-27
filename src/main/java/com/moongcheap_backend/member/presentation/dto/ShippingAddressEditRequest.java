@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Size;
           "zipcode": "06235",
           "address": "서울특별시 강남구 테헤란로 427",
           "addressDetail": "301동 1001호",
+          "entranceCode": null,
           "requestMessage": "경비실에 맡겨주세요"
         }
         """)
@@ -23,6 +24,7 @@ public record ShippingAddressEditRequest(
         @NotBlank @Pattern(regexp = "\\d{5}") String zipcode,
         @NotBlank @Size(max = 255) String address,
         @Size(max = 100) String addressDetail,
+        @Size(max = 20) String entranceCode,
         @Size(max = 100) String requestMessage
 ) {
 }

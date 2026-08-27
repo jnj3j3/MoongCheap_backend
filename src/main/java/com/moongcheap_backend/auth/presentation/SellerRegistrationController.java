@@ -2,7 +2,6 @@ package com.moongcheap_backend.auth.presentation;
 
 import com.moongcheap_backend.auth.presentation.dto.SellerRegisterRequestDto;
 import com.moongcheap_backend.auth.application.SellerRegistrationService;
-import com.moongcheap_backend.common.response.ApiResponse;
 import com.moongcheap_backend.common.security.SessionPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,10 +26,10 @@ public class SellerRegistrationController {
 
     @Operation(summary = "판매자 등록", description = "Auth-12. 사업자등록번호 형식·체크섬 검증, 즉시 APPROVED, 세션 무효화 없이 권한 갱신.")
     @PostMapping
-    public ResponseEntity<ApiResponse<Map<String, Long>>> create(SessionPrincipal principal,
-                                                                 @RequestBody @Valid SellerRegisterRequestDto request,
-                                                                 HttpServletRequest httpRequest) {
+    public ResponseEntity<Map<String, Long>> create(SessionPrincipal principal,
+                                                    @RequestBody @Valid SellerRegisterRequestDto request,
+                                                    HttpServletRequest httpRequest) {
         Long sellerId = sellerRegistrationService.register(principal.memberId(), request, httpRequest);
-        return ResponseEntity.ok(ApiResponse.ok(Map.of("sellerId", sellerId)));
+        return ResponseEntity.ok(Map.of("sellerId", sellerId));
     }
 }
