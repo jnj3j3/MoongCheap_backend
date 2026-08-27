@@ -32,25 +32,28 @@ public class PaymentsWebhook {
     @Column(name = "toss_created_at")
     private LocalDateTime tossCreatedAt;
 
-    @Column(name = "customer_key")
+    @Column(name = "customer_key", length = 50)
     private String customerKey;
 
     @Column(name = "method_key")
     private String methodKey;
 
-    @Column(name = "payment_key")
+    @Column(name = "payment_key", length = 200)
     private String paymentKey;
 
-    @Column(name = "order_id")
+    //주문번호
+    @Column(name = "order_id", length = 64)
     private String orderId;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "payload", nullable = false, columnDefinition = "jsonb")
     private String payload;
 
+    //수신일시
     @Column(name = "received_at", nullable = false)
     private LocalDateTime receivedAt;
 
+    //처리일시
     @Column(name = "processed_at")
     private LocalDateTime processedAt;
 }

@@ -1,12 +1,16 @@
 package com.moongcheap_backend.payout.domain;
 
+import com.moongcheap_backend.member.domain.Seller;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -22,8 +26,9 @@ public class SellerPayoutAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "seller_id", nullable = false, unique = true)
-    private Long sellerId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id", nullable = false)
+    private Seller seller;
 
     @Column(name = "pg_seller_key", unique = true)
     private String pgSellerKey;

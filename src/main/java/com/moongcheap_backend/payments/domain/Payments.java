@@ -51,11 +51,11 @@ public class Payments extends BaseTimeEntity {
     private PaymentsStatus status;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payments_type", length = 20)
+    @Column(name = "payments_type", length = 30)
     private PaymentsType type;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "method", length = 40)
+    @Column(name = "method", length = 30)
     private PaymentsMethod method;
 
     @Column(name = "approved_at")

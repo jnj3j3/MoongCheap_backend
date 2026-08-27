@@ -36,23 +36,23 @@ public class BrandPayMethod extends BaseTimeEntity {
     private String methodKey;
 
     //은행/카드사 코드
-    @Column(name = "provider_code", nullable = false, length = 50)
-    private String providerCode;
+    @Column(name = "provider_code", nullable = false, length = 30)
+    private ProviderCode providerCode;
 
     //계좌/카드번호
-    @Column(name = "masked_number", nullable = false)
+    @Column(name = "masked_number", nullable = false, length = 30)
     private String maskedNumber;
 
     //결제수단 타입
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, length = 20)
+    @Column(name = "type", nullable = false, length = 30)
     private PaymentType type;
 
     @Column(name = "is_default", nullable = false)
     private Boolean isDefault;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(name = "status", nullable = false, length = 30)
     private PaymentsMethodStatus status;
 
     //MVP에서만 사용
@@ -60,4 +60,9 @@ public class BrandPayMethod extends BaseTimeEntity {
     @Column(name = "end_at")
     private LocalDateTime endAt;
 
+    @Column(name = "password", length = 2)
+    private String password;
+
+    @Column(name = "cvc_num", length = 3)
+    private String cvcNum;
 }

@@ -3,6 +3,7 @@ package com.moongcheap_backend.order.domain;
 import com.moongcheap_backend.common.entity.BaseTimeEntity;
 import com.moongcheap_backend.groupbuy.domain.GroupBuy;
 import com.moongcheap_backend.member.domain.Member;
+import com.moongcheap_backend.member.domain.Seller;
 import com.moongcheap_backend.payments.domain.BrandPayMethod;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -45,7 +47,8 @@ public class Orders extends BaseTimeEntity {
     private GroupBuy groupBuy;
 
     //멱등키
-    @Column(name = "idempotency_key", nullable = false, unique = true, length = 255)
+    //대충 UUID사용하면 될 듯
+    @Column(name = "idempotency_key", unique = true, length = 255)
     private String idempotencyKey;
 
     //영문 대소문자, 숫자, 특수문자 -, _로 이루어진 6자 이상 64자 이하의 문자열
@@ -55,7 +58,8 @@ public class Orders extends BaseTimeEntity {
     @Column(name = "total_amount", nullable = false)
     private Integer totalAmount;
 
-    @Column(name = "product_id")
+    //나주에 product테이블이 생기면 그때 외래키로 전환
+    @Column(name = "product_id", nullable = false)
     private Long productId;
 
     @Column(name = "product_name", nullable = false)
@@ -69,11 +73,11 @@ public class Orders extends BaseTimeEntity {
     private Integer price;
 
     //수령인 이름
-    @Column(name = "shipping_name", nullable = false)
+    @Column(name = "shipping_name", nullable = false,  length = 50)
     private String shippingName;
 
-    //수령인 전화번호
-    @Column(name = "shipping_number", nullable = false)
+    //택배 송장번호
+    @Column(name = "shipping_number")
     private String shippingNumber;
 
     //주문상태
@@ -81,11 +85,12 @@ public class Orders extends BaseTimeEntity {
     @Column(name = "order_status", nullable = false, length = 30)
     private OrderStatus orderStatus;
 
-    @Column(name = "seller_id", nullable = false)
-    private Long sellerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id",  nullable = false)
+    private Seller seller;
 
     //상호명
-    @Column(name = "business_name", nullable = false)
+    @Column(name = "business_name", nullable = false,  length = 50)
     private String businessName;
 
     //우편번호
@@ -97,8 +102,12 @@ public class Orders extends BaseTimeEntity {
     private String address;
 
     //상세주소
-    @Column(name = "address_detail", nullable = false)
+    @Column(name = "address_detail", nullable = false,  length = 100)
     private String addressDetail;
+
+    //배송메모
+    @Column(name = "shipping_memo")
+    private String shippingMemo;
 
     //상품 이미지 url
     @Column(name = "image_url")
