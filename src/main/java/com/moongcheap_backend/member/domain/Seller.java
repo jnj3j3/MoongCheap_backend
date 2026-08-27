@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "seller",
         uniqueConstraints = {
-                @UniqueConstraint(name = "ux_seller_member_id", columnNames = "member_id")
+                @UniqueConstraint(name = "uq_seller_member_id", columnNames = "member_id")
         })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Seller extends BaseTimeEntity {

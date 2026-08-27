@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
           "zipcode": "06235",
           "address": "서울특별시 강남구 테헤란로 427",
           "addressDetail": "101동 202호",
+          "entranceCode": "1234#",
           "requestMessage": "문 앞에 놓아주세요",
           "isDefault": true
         }
@@ -23,6 +24,7 @@ public record ShippingAddressResponse(
         String zipcode,
         String address,
         String addressDetail,
+        String entranceCode,
         String requestMessage,
         boolean isDefault
 ) {

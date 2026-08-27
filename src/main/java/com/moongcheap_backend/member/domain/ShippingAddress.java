@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "shipping_address",
-        indexes = @Index(name = "ix_shipping_address_member_id", columnList = "member_id"))
+        indexes = @Index(name = "idx_shipping_address_member_id", columnList = "member_id"))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShippingAddress extends BaseTimeEntity {
 
@@ -21,8 +21,8 @@ public class ShippingAddress extends BaseTimeEntity {
     @Column(name = "member_id", nullable = false)
     private Long memberId;
 
-    @Column(name = "is_default")
-    private Boolean isDefault;
+    @Column(name = "is_default", nullable = false)
+    private boolean isDefault;
 
     @Column(name = "alias", nullable = false, length = 30)
     private String alias;
@@ -42,13 +42,16 @@ public class ShippingAddress extends BaseTimeEntity {
     @Column(name = "address_detail", length = 100)
     private String addressDetail;
 
+    @Column(name = "entrance_code", length = 20)
+    private String entranceCode;
+
     @Column(name = "request_message", length = 100)
     private String requestMessage;
 
     @Builder
     private ShippingAddress(Long memberId, String alias, String recipientName, String phoneNumber,
                             String zipcode, String address, String addressDetail,
-                            String requestMessage, Boolean isDefault) {
+                            String entranceCode, String requestMessage, boolean isDefault) {
         this.memberId = memberId;
         this.alias = alias;
         this.recipientName = recipientName;
@@ -56,18 +59,21 @@ public class ShippingAddress extends BaseTimeEntity {
         this.zipcode = zipcode;
         this.address = address;
         this.addressDetail = addressDetail;
+        this.entranceCode = entranceCode;
         this.requestMessage = requestMessage;
         this.isDefault = isDefault;
     }
 
     public void update(String alias, String recipientName, String phoneNumber,
-                       String zipcode, String address, String addressDetail, String requestMessage) {
+                       String zipcode, String address, String addressDetail,
+                       String entranceCode, String requestMessage) {
         this.alias = alias;
         this.recipientName = recipientName;
         this.phoneNumber = phoneNumber;
         this.zipcode = zipcode;
         this.address = address;
         this.addressDetail = addressDetail;
+        this.entranceCode = entranceCode;
         this.requestMessage = requestMessage;
     }
 
@@ -80,6 +86,6 @@ public class ShippingAddress extends BaseTimeEntity {
     }
 
     public boolean isDefault() {
-        return Boolean.TRUE.equals(isDefault);
+        return isDefault;
     }
 }

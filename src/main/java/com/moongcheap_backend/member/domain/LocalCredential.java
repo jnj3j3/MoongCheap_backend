@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @Table(name = "member_local",
-        uniqueConstraints = @UniqueConstraint(name = "ux_member_local_member_id", columnNames = "member_id"))
+        uniqueConstraints = @UniqueConstraint(name = "uq_member_local_member_id", columnNames = "member_id"))
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LocalCredential {
