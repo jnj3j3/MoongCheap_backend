@@ -1,4 +1,4 @@
-package com.moongcheap_backend.product.domain;
+package com.moongcheap_backend.product.domain.productCatalog;
 
 import com.moongcheap_backend.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;

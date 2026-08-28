@@ -1,7 +1,8 @@
 package com.moongcheap_backend.member.presentation;
 
-import com.moongcheap_backend.member.presentation.dto.SellerPublicResponse;
+import com.moongcheap_backend.common.security.SessionPrincipal;
 import com.moongcheap_backend.member.application.SellerPublicService;
+import com.moongcheap_backend.member.presentation.dto.SellerPublicResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,9 @@ public class SellerPublicController {
 
     @Operation(summary = "판매자 공개 정보 조회", description = "상호명·대표자명·사업자번호(마스킹)·통판번호·사업장 연락처.")
     @GetMapping("/{id}/public")
-    public ResponseEntity<SellerPublicResponse> detail(@PathVariable Long id) {
+    public ResponseEntity<SellerPublicResponseDto> detail(
+        SessionPrincipal principal,
+        @PathVariable Long id) {
         return ResponseEntity.ok(sellerPublicService.detail(id));
     }
 }

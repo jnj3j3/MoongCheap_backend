@@ -24,7 +24,7 @@ APPROVED → WITHDRAWN (판매자 탈퇴 → softDelete())
 ---
 
 ## ProductCatalogStatus
-> **Java enum** `com.moongcheap_backend.product.domain.ProductCatalogStatus`
+> **Java enum** `com.moongcheap_backend.product.domain.productCatalog.ProductCatalogStatus`
 > `product_catalog.status VARCHAR(20)`
 > 상품 도감의 노출·수요 접수 가능 여부를 나타냅니다.
 

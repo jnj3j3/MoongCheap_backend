@@ -1,9 +1,9 @@
 package com.moongcheap_backend.member.presentation;
 
 import com.moongcheap_backend.common.security.SessionPrincipal;
-import com.moongcheap_backend.member.presentation.dto.ShippingAddressEditRequest;
-import com.moongcheap_backend.member.presentation.dto.ShippingAddressRequest;
-import com.moongcheap_backend.member.presentation.dto.ShippingAddressResponse;
+import com.moongcheap_backend.member.presentation.dto.ShippingAddressEditRequestDto;
+import com.moongcheap_backend.member.presentation.dto.ShippingAddressRequestDto;
+import com.moongcheap_backend.member.presentation.dto.ShippingAddressResponseDto;
 import com.moongcheap_backend.member.application.ShippingAddressService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,20 +25,20 @@ public class ShippingAddressController {
 
     @Operation(summary = "배송지 목록", description = "BR-B30-01. 기본 배송지 우선, 최근 등록순 정렬.")
     @GetMapping
-    public ResponseEntity<List<ShippingAddressResponse>> list(SessionPrincipal principal) {
+    public ResponseEntity<List<ShippingAddressResponseDto>> list(SessionPrincipal principal) {
         return ResponseEntity.ok(shippingAddressService.getAll(principal.memberId()));
     }
 
     @Operation(summary = "배송지 상세", description = "FN-B30-01. 본인 소유 배송지 단건 조회.")
     @GetMapping("/{id}")
-    public ResponseEntity<ShippingAddressResponse> detail(SessionPrincipal principal, @PathVariable Long id) {
+    public ResponseEntity<ShippingAddressResponseDto> detail(SessionPrincipal principal, @PathVariable Long id) {
         return ResponseEntity.ok(shippingAddressService.getById(principal.memberId(), id));
     }
 
     @Operation(summary = "배송지 등록", description = "FN-B30-02. 최대 5개. 첫 배송지는 자동으로 기본으로 지정.")
     @PostMapping
     public ResponseEntity<Map<String, Long>> create(SessionPrincipal principal,
-                                                    @RequestBody @Valid ShippingAddressRequest request) {
+                                                    @RequestBody @Valid ShippingAddressRequestDto request) {
         Long id = shippingAddressService.create(principal.memberId(), request);
         return ResponseEntity.ok(Map.of("id", id));
     }
@@ -46,7 +46,7 @@ public class ShippingAddressController {
     @Operation(summary = "배송지 수정", description = "FN-B30-02. 본인 소유 배송지에만 허용.")
     @PatchMapping("/{id}")
     public ResponseEntity<Void> edit(SessionPrincipal principal, @PathVariable Long id,
-                                     @RequestBody @Valid ShippingAddressEditRequest request) {
+                                     @RequestBody @Valid ShippingAddressEditRequestDto request) {
         shippingAddressService.edit(principal.memberId(), id, request);
         return ResponseEntity.noContent().build();
     }

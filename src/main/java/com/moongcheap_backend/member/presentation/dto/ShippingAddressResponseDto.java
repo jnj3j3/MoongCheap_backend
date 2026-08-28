@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
           "isDefault": true
         }
         """)
-public record ShippingAddressResponse(
+public record ShippingAddressResponseDto(
         Long id,
         String alias,
         String recipientName,

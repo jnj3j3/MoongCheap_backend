@@ -17,7 +17,7 @@ import jakarta.validation.constraints.Size;
           "requestMessage": "경비실에 맡겨주세요"
         }
         """)
-public record ShippingAddressEditRequest(
+public record ShippingAddressEditRequestDto(
         @NotBlank @Size(max = 20) String alias,
         @NotBlank @Pattern(regexp = "^[가-힣a-zA-Z\\s]{2,20}$") String recipientName,
         @NotBlank @Pattern(regexp = "^0\\d{1,2}-?\\d{3,4}-?\\d{4}$") String phoneNumber,

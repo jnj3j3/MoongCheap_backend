@@ -4,7 +4,7 @@ import com.moongcheap_backend.auth.presentation.dto.ChangePasswordRequestDto;
 import com.moongcheap_backend.auth.presentation.dto.LoginIdAvailabilityResponseDto;
 import com.moongcheap_backend.auth.presentation.dto.LoginRequestDto;
 import com.moongcheap_backend.auth.presentation.dto.SignUpRequestDto;
-import com.moongcheap_backend.auth.presentation.dto.WithdrawRequest;
+import com.moongcheap_backend.auth.presentation.dto.WithdrawRequestDto;
 import com.moongcheap_backend.auth.application.AuthLoginService;
 import com.moongcheap_backend.auth.application.AuthSignUpService;
 import com.moongcheap_backend.auth.application.PasswordChangeService;
@@ -82,7 +82,7 @@ public class AuthController {
     @Operation(summary = "회원 탈퇴", description = "FN-B01-02. 비밀번호 재확인 후 전 세션 삭제·개인정보 파기.")
     @DeleteMapping("/withdraw")
     public ResponseEntity<Void> delete(SessionPrincipal principal,
-                                       @RequestBody(required = false) @Valid WithdrawRequest request) {
+                                       @RequestBody(required = false) @Valid WithdrawRequestDto request) {
         withdrawService.withdraw(principal.memberId(), request);
         return ResponseEntity.noContent().build();
     }

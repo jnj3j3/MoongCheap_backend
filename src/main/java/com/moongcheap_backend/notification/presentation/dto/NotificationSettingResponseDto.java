@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
           "mandatory": true
         }
         """)
-public record NotificationSettingResponse(
+public record NotificationSettingResponseDto(
         NotificationType type,
         String description,
         boolean enabled,
