@@ -26,14 +26,14 @@ public class Category extends BaseTimeEntity {
     @Column(name = "depth", nullable = false)
     private Short depth;
 
-    @Column(name = "is_active", nullable = false)
-    private boolean isActive = true;
+    @Column(name = "facet", columnDefinition = "TEXT")
+    private String facet;
 
     @Builder
-    private Category(Long parentId, String name, Short depth) {
+    private Category(Long parentId, String name, Short depth, String facet) {
         this.parentId = parentId;
         this.name = name;
         this.depth = depth;
-        this.isActive = true;
+        this.facet = facet;
     }
 }

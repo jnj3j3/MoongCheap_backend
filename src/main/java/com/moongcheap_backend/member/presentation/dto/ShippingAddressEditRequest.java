@@ -18,9 +18,9 @@ import jakarta.validation.constraints.Size;
         }
         """)
 public record ShippingAddressEditRequest(
-        @NotBlank @Size(max = 30) String alias,
-        @NotBlank @Size(min = 2, max = 50) String recipientName,
-        @NotBlank String phoneNumber,
+        @NotBlank @Size(max = 20) String alias,
+        @NotBlank @Pattern(regexp = "^[가-힣a-zA-Z\\s]{2,20}$") String recipientName,
+        @NotBlank @Pattern(regexp = "^0\\d{1,2}-?\\d{3,4}-?\\d{4}$") String phoneNumber,
         @NotBlank @Pattern(regexp = "\\d{5}") String zipcode,
         @NotBlank @Size(max = 255) String address,
         @Size(max = 100) String addressDetail,

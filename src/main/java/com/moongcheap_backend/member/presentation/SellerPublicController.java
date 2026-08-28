@@ -19,7 +19,7 @@ public class SellerPublicController {
 
     private final SellerPublicService sellerPublicService;
 
-    @Operation(summary = "판매자 공개 정보 조회", description = "User-12. 상호명·대표자명·사업자번호(마스킹)·통판번호·사업장 연락처.")
+    @Operation(summary = "판매자 공개 정보 조회", description = "상호명·대표자명·사업자번호(마스킹)·통판번호·사업장 연락처.")
     @GetMapping("/{id}/public")
     public ResponseEntity<SellerPublicResponse> detail(@PathVariable Long id) {
         return ResponseEntity.ok(sellerPublicService.detail(id));

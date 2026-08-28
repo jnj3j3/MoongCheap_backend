@@ -1,6 +1,8 @@
 package com.moongcheap_backend.auth.presentation.dto;
 
+import jakarta.validation.constraints.Size;
+
 public record WithdrawRequest(
-        String password
+        @Size(max = 100) String password
 ) {
 }
