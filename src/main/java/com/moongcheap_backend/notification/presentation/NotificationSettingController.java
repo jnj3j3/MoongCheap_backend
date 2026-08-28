@@ -2,8 +2,8 @@ package com.moongcheap_backend.notification.presentation;
 
 import com.moongcheap_backend.common.security.SessionPrincipal;
 import com.moongcheap_backend.notification.domain.NotificationType;
-import com.moongcheap_backend.notification.presentation.dto.NotificationSettingEditRequest;
-import com.moongcheap_backend.notification.presentation.dto.NotificationSettingResponse;
+import com.moongcheap_backend.notification.presentation.dto.NotificationSettingEditRequestDto;
+import com.moongcheap_backend.notification.presentation.dto.NotificationSettingResponseDto;
 import com.moongcheap_backend.notification.application.NotificationSettingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,7 +29,7 @@ public class NotificationSettingController {
 
     @Operation(summary = "알림 수신 설정 목록", description = "MVP 범위 X. 전체 알림 유형과 현재 수신 여부 반환.")
     @GetMapping
-    public ResponseEntity<List<NotificationSettingResponse>> list(SessionPrincipal principal) {
+    public ResponseEntity<List<NotificationSettingResponseDto>> list(SessionPrincipal principal) {
         return ResponseEntity.ok(notificationSettingService.getAll(principal.memberId()));
     }
 
@@ -37,7 +37,7 @@ public class NotificationSettingController {
     @PatchMapping("/{type}")
     public ResponseEntity<Void> edit(SessionPrincipal principal,
                                      @PathVariable NotificationType type,
-                                     @RequestBody @Valid NotificationSettingEditRequest request) {
+                                     @RequestBody @Valid NotificationSettingEditRequestDto request) {
         notificationSettingService.edit(principal.memberId(), type, request.enabled());
         return ResponseEntity.noContent().build();
     }

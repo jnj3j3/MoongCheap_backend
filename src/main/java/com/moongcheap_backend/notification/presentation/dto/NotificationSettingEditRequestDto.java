@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
           "enabled": false
         }
         """)
-public record NotificationSettingEditRequest(
+public record NotificationSettingEditRequestDto(
         @NotNull Boolean enabled
 ) {
 }

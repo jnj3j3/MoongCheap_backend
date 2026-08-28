@@ -7,9 +7,9 @@ import com.moongcheap_backend.common.lock.AdvisoryLockAdaptor;
 import com.moongcheap_backend.common.lock.AdvisoryLockKeys;
 import com.moongcheap_backend.member.domain.ShippingAddress;
 import com.moongcheap_backend.member.infrastructure.ShippingAddressRepository;
-import com.moongcheap_backend.member.presentation.dto.ShippingAddressEditRequest;
-import com.moongcheap_backend.member.presentation.dto.ShippingAddressRequest;
-import com.moongcheap_backend.member.presentation.dto.ShippingAddressResponse;
+import com.moongcheap_backend.member.presentation.dto.ShippingAddressEditRequestDto;
+import com.moongcheap_backend.member.presentation.dto.ShippingAddressRequestDto;
+import com.moongcheap_backend.member.presentation.dto.ShippingAddressResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +29,7 @@ public class ShippingAddressService {
     private final AdvisoryLockAdaptor advisoryLockAdaptor;
 
     @Transactional(readOnly = true)
-    public List<ShippingAddressResponse> getAll(Long memberId) {
+    public List<ShippingAddressResponseDto> getAll(Long memberId) {
         return shippingAddressRepository
                 .findAllByMemberIdOrderByIsDefaultDescCreatedAtDesc(memberId)
                 .stream()
@@ -38,13 +38,13 @@ public class ShippingAddressService {
     }
 
     @Transactional(readOnly = true)
-    public ShippingAddressResponse getById(Long memberId, Long addressId) {
+    public ShippingAddressResponseDto getById(Long memberId, Long addressId) {
         return toResponse(loadOwned(memberId, addressId));
     }
 
     // 배송지 저장 제한 : 5개 — count 기반 제약은 SQL WHERE로 phantom read 방지 불가하여 Advisory Lock 사용
     @Transactional
-    public Long create(Long memberId, ShippingAddressRequest request) {
+    public Long create(Long memberId, ShippingAddressRequestDto request) {
         advisoryLockAdaptor.acquireXactLock(AdvisoryLockKeys.shippingAddressCreate(memberId), SHIPPING_LOCK_TIMEOUT);
         long existing = shippingAddressRepository.countByMemberId(memberId);
         if (existing >= MAX_ADDRESSES) {
@@ -71,7 +71,7 @@ public class ShippingAddressService {
     }
 
     @Transactional
-    public void edit(Long memberId, Long addressId, ShippingAddressEditRequest request) {
+    public void edit(Long memberId, Long addressId, ShippingAddressEditRequestDto request) {
         ShippingAddress address = loadOwned(memberId, addressId);
         String phoneDigits = request.phoneNumber().replaceAll("[^0-9]", "");
         address.update(
@@ -116,9 +116,9 @@ public class ShippingAddressService {
         return address;
     }
 
-    private ShippingAddressResponse toResponse(ShippingAddress a) {
+    private ShippingAddressResponseDto toResponse(ShippingAddress a) {
         String phone = encryptionService.decrypt(a.getPhoneNumber());
-        return new ShippingAddressResponse(
+        return new ShippingAddressResponseDto(
                 a.getId(),
                 a.getAlias(),
                 a.getRecipientName(),

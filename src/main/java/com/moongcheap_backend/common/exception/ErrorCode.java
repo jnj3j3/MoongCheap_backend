@@ -45,6 +45,9 @@ public enum ErrorCode {
     // 동시성
     CONCURRENT_REQUEST_CONFLICT(HttpStatus.CONFLICT, "COMMON_409", "요청이 충돌했습니다. 잠시 후 다시 시도해주세요."),
 
+    // Product
+    PRODUCT_CATALOG_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_001", "상품 카탈로그를 찾을 수 없습니다."),
+
     // Seller
     SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "SELLER_001", "이미 판매자로 등록되어 있습니다."),
     BUSINESS_NUMBER_INVALID(HttpStatus.BAD_REQUEST, "SELLER_002", "사업자등록번호 형식이 올바르지 않습니다."),

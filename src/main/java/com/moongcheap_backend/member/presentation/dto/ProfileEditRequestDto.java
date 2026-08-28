@@ -12,7 +12,7 @@ import jakarta.validation.constraints.Size;
           "email": "hong@example.com"
         }
         """)
-public record ProfileEditRequest(
+public record ProfileEditRequestDto(
         @Size(max = 20) String nickname,
         @Pattern(regexp = "^0\\d{1,2}-?\\d{3,4}-?\\d{4}$") String phoneNumber,
         @Email String email

@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
           }
         }
         """)
-public record OrderMemberInfo(
+public record OrderMemberInfoDto(
         String nickname,
         String buyerPhoneNumber,
         ShippingSnapshot shipping

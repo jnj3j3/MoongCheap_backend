@@ -21,7 +21,7 @@ import java.util.List;
           }
         }
         """)
-public record ProfileResponse(
+public record ProfileResponseDto(
         String loginId,
         String nickname,
         String phoneNumberMasked,

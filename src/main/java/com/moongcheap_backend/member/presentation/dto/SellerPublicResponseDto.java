@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
           "phoneNumber": "010-****-5678"
         }
         """)
-public record SellerPublicResponse(
+public record SellerPublicResponseDto(
         String businessName,
         String ownerName,
         String businessNumberMasked,

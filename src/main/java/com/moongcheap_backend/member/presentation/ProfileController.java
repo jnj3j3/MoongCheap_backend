@@ -1,8 +1,8 @@
 package com.moongcheap_backend.member.presentation;
 
 import com.moongcheap_backend.common.security.SessionPrincipal;
-import com.moongcheap_backend.member.presentation.dto.ProfileEditRequest;
-import com.moongcheap_backend.member.presentation.dto.ProfileResponse;
+import com.moongcheap_backend.member.presentation.dto.ProfileEditRequestDto;
+import com.moongcheap_backend.member.presentation.dto.ProfileResponseDto;
 import com.moongcheap_backend.member.application.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,13 +25,13 @@ public class ProfileController {
 
     @Operation(summary = "내 프로필 조회", description = "FN-B24-01. 본인 프로필 상세 (연락처는 마스킹).")
     @GetMapping
-    public ResponseEntity<ProfileResponse> detail(SessionPrincipal principal) {
+    public ResponseEntity<ProfileResponseDto> detail(SessionPrincipal principal) {
         return ResponseEntity.ok(profileService.detail(principal.memberId()));
     }
 
     @Operation(summary = "내 프로필 수정", description = "BR-B24-01. 닉네임/연락처/이메일/프로필 이미지 PATCH.")
     @PatchMapping
-    public ResponseEntity<Void> edit(SessionPrincipal principal, @RequestBody @Valid ProfileEditRequest request) {
+    public ResponseEntity<Void> edit(SessionPrincipal principal, @RequestBody @Valid ProfileEditRequestDto request) {
         profileService.edit(principal.memberId(), request);
         return ResponseEntity.noContent().build();
     }
