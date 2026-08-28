@@ -30,6 +30,6 @@ public class SellerKey extends BaseTimeEntity {
     @JoinColumn(name = "seller_id")
     private Seller seller;
 
-    @Column(name = "seller_key", nullable = false, unique = true)
+    @Column(name = "seller_key", nullable = false, unique = true, length = 20)
     private String sellerKey;
 }

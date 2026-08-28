@@ -32,10 +32,10 @@ public class BrandPayToken extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Column(name = "access_token")
+    @Column(name = "access_token", columnDefinition = "TEXT")
     private String accessToken;
 
-    @Column(name = "refresh_token")
+    @Column(name = "refresh_token", columnDefinition = "TEXT")
     private String refreshToken;
 
     @Column(name = "access_token_expires_at")

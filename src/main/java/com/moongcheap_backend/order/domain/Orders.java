@@ -3,7 +3,6 @@ package com.moongcheap_backend.order.domain;
 import com.moongcheap_backend.common.entity.BaseTimeEntity;
 import com.moongcheap_backend.groupbuy.domain.GroupBuy;
 import com.moongcheap_backend.member.domain.Member;
-import com.moongcheap_backend.member.domain.Seller;
 import com.moongcheap_backend.payments.domain.BrandPayMethod;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +14,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -38,18 +36,13 @@ public class Orders extends BaseTimeEntity {
 
     //구매자 id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member customer;
 
     //공동구매 id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_buy_id", nullable = false)
     private GroupBuy groupBuy;
-
-    //멱등키
-    //대충 UUID사용하면 될 듯
-    @Column(name = "idempotency_key", unique = true, length = 255)
-    private String idempotencyKey;
 
     //영문 대소문자, 숫자, 특수문자 -, _로 이루어진 6자 이상 64자 이하의 문자열
     @Column(name = "order_no", nullable = false, unique = true, length = 64)
@@ -58,11 +51,11 @@ public class Orders extends BaseTimeEntity {
     @Column(name = "total_amount", nullable = false)
     private Integer totalAmount;
 
-    //나주에 product테이블이 생기면 그때 외래키로 전환
+    //나중에 product테이블이 생기면 그때 외래키로 전환
     @Column(name = "product_id", nullable = false)
     private Long productId;
 
-    @Column(name = "product_name", nullable = false)
+    @Column(name = "product_name", nullable = false, length = 100)
     private String productName;
 
     //수량
@@ -76,8 +69,12 @@ public class Orders extends BaseTimeEntity {
     @Column(name = "shipping_name", nullable = false,  length = 50)
     private String shippingName;
 
+    //수령인 전화번호
+    @Column(name = "phone_number", columnDefinition = "TEXT", nullable = false)
+    private String phoneNumber;
+
     //택배 송장번호
-    @Column(name = "shipping_number")
+    @Column(name = "shipping_number", columnDefinition = "TEXT")
     private String shippingNumber;
 
     //주문상태
@@ -85,9 +82,8 @@ public class Orders extends BaseTimeEntity {
     @Column(name = "order_status", nullable = false, length = 30)
     private OrderStatus orderStatus;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id",  nullable = false)
-    private Seller seller;
+    @Column(name = "seller_id", nullable = false)
+    private Long sellerId;
 
     //상호명
     @Column(name = "business_name", nullable = false,  length = 50)

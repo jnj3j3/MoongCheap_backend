@@ -36,6 +36,7 @@ public class BrandPayMethod extends BaseTimeEntity {
     private String methodKey;
 
     //은행/카드사 코드
+    @Enumerated(EnumType.STRING)
     @Column(name = "provider_code", nullable = false, length = 30)
     private ProviderCode providerCode;
 
@@ -54,15 +55,4 @@ public class BrandPayMethod extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
     private PaymentsMethodStatus status;
-
-    //MVP에서만 사용
-    //카드 유효기간
-    @Column(name = "end_at")
-    private LocalDateTime endAt;
-
-    @Column(name = "password", length = 2)
-    private String password;
-
-    @Column(name = "cvc_num", length = 3)
-    private String cvcNum;
 }

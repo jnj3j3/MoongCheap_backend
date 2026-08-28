@@ -26,7 +26,7 @@ public class PaymentsWebhook {
     @Column(name = "transmission_id", unique = true)
     private String transmissionId;
 
-    @Column(name = "event_type")
+    @Column(name = "event_type", length = 50)
     private String eventType;
 
     @Column(name = "toss_created_at")
@@ -46,7 +46,7 @@ public class PaymentsWebhook {
     private String orderId;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "payload", nullable = false, columnDefinition = "jsonb")
+    @Column(name = "payload", nullable = false, columnDefinition = "json")
     private String payload;
 
     //수신일시

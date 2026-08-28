@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import lombok.Builder.Default;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import lombok.AccessLevel;
@@ -48,7 +49,7 @@ public class Payments extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payments_status", nullable = false, length = 30)
-    private PaymentsStatus status;
+    private PaymentsStatus status = PaymentsStatus.READY;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payments_type", length = 30)
