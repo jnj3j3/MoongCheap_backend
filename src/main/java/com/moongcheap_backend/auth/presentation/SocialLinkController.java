@@ -26,14 +26,14 @@ public class SocialLinkController {
 
     private final SocialLinkService socialLinkService;
 
-    @Operation(summary = "소셜 계정 연동 시작", description = "Auth-07. OAuth2 인가 페이지로 리다이렉트. 로그인 상태에서 호출해야 연동으로 처리됨.")
+    @Operation(summary = "소셜 계정 연동 시작", description = "기능 명세 X. OAuth2 인가 페이지로 리다이렉트. 로그인 상태에서 호출해야 연동으로 처리됨.")
     @GetMapping("/{provider}")
     public void link(@PathVariable String provider, HttpServletResponse response) throws IOException {
         resolveProvider(provider);
         response.sendRedirect("/oauth2/authorization/" + provider.toLowerCase());
     }
 
-    @Operation(summary = "소셜 계정 연동 해제", description = "Auth-09. 남는 로그인 수단이 최소 1개일 때만 허용.")
+    @Operation(summary = "소셜 계정 연동 해제", description = "기능 명세 X. 남는 로그인 수단이 최소 1개일 때만 허용.")
     @DeleteMapping("/{provider}")
     public ResponseEntity<Void> delete(SessionPrincipal principal, @PathVariable String provider) {
         socialLinkService.unlink(principal.memberId(), resolveProvider(provider));

@@ -27,18 +27,18 @@ public class NotificationSettingController {
 
     private final NotificationSettingService notificationSettingService;
 
-    @Operation(summary = "알림 수신 설정 목록", description = "User-11. 전체 알림 유형과 현재 수신 여부 반환.")
+    @Operation(summary = "알림 수신 설정 목록", description = "MVP 범위 X. 전체 알림 유형과 현재 수신 여부 반환.")
     @GetMapping
     public ResponseEntity<List<NotificationSettingResponse>> list(SessionPrincipal principal) {
         return ResponseEntity.ok(notificationSettingService.getAll(principal.memberId()));
     }
 
-    @Operation(summary = "알림 유형별 설정 변경", description = "User-11. 거래 필수 알림은 해제 불가.")
+    @Operation(summary = "알림 유형별 설정 변경", description = "MVP 범위 X. 거래 필수 알림은 해제 불가.")
     @PatchMapping("/{type}")
     public ResponseEntity<Void> edit(SessionPrincipal principal,
-                                     @PathVariable String type,
+                                     @PathVariable NotificationType type,
                                      @RequestBody @Valid NotificationSettingEditRequest request) {
-        notificationSettingService.edit(principal.memberId(), NotificationType.valueOf(type.toUpperCase()), request.enabled());
+        notificationSettingService.edit(principal.memberId(), type, request.enabled());
         return ResponseEntity.noContent().build();
     }
 }

@@ -9,7 +9,6 @@ import com.moongcheap_backend.member.domain.Member;
 import com.moongcheap_backend.member.domain.Seller;
 import com.moongcheap_backend.member.domain.SocialCredential;
 import com.moongcheap_backend.member.infrastructure.MemberRepository;
-import com.moongcheap_backend.category.infrastructure.SellerInterestCategoryRepository;
 import com.moongcheap_backend.member.infrastructure.SellerRepository;
 import com.moongcheap_backend.member.infrastructure.SocialCredentialRepository;
 import com.moongcheap_backend.member.presentation.dto.ProfileEditRequest;
@@ -28,7 +27,6 @@ public class ProfileService {
 
     private final MemberRepository memberRepository;
     private final SellerRepository sellerRepository;
-    private final SellerInterestCategoryRepository interestCategoryRepository;
     private final SocialCredentialRepository socialCredentialRepository;
     private final NicknameService nicknameService;
     private final EncryptionService encryptionService;
@@ -81,13 +79,9 @@ public class ProfileService {
     }
 
     private ProfileResponse.SellerSummary toSellerSummary(Seller seller) {
-        List<Long> categoryIds = interestCategoryRepository.findAllBySellerId(seller.getId()).stream()
-                .map(c -> c.getCategoryId())
-                .toList();
         return new ProfileResponse.SellerSummary(
                 seller.getBusinessName(),
-                seller.getStatus().name(),
-                categoryIds
+                seller.getStatus().name()
         );
     }
 }

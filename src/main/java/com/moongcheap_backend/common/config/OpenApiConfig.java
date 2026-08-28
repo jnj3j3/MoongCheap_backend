@@ -69,7 +69,7 @@ public class OpenApiConfig {
         return new PathItem().get(new Operation()
                 .addTagsItem("Social Login")
                 .summary(provider + " 소셜 로그인")
-                .description(provider + " OAuth2 로그인 페이지로 리다이렉트합니다. Swagger UI에서 직접 실행 불가 — 브라우저에서 URL을 직접 열어야 합니다.")
+                .description("FN-B01-01. "+provider + " OAuth2 로그인 페이지로 리다이렉트합니다. Swagger UI에서 직접 실행 불가 — 브라우저에서 URL을 직접 열어야 합니다.")
                 .operationId("oauth2Login_" + registrationId)
                 .responses(new ApiResponses()
                         .addApiResponse("302", new ApiResponse().description(provider + " 로그인 페이지로 리다이렉트"))));

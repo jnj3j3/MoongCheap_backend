@@ -2,6 +2,8 @@ package com.moongcheap_backend.member.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 @Schema(example = """
         {
@@ -11,8 +13,8 @@ import jakarta.validation.constraints.Email;
         }
         """)
 public record ProfileEditRequest(
-        String nickname,
-        String phoneNumber,
+        @Size(max = 20) String nickname,
+        @Pattern(regexp = "^0\\d{1,2}-?\\d{3,4}-?\\d{4}$") String phoneNumber,
         @Email String email
 ) {
 }

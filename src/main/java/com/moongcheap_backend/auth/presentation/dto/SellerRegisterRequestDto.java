@@ -2,10 +2,8 @@ package com.moongcheap_backend.auth.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-
-import java.util.List;
 
 @Schema(example = """
         {
@@ -13,8 +11,7 @@ import java.util.List;
           "businessNumber": "123-45-67891",
           "mailOrderRegistrationNumber": "2024-서울강남-1234",
           "ownerName": "홍길동",
-          "phoneNumber": "010-1234-5678",
-          "interestCategoryIds": [1, 2, 3]
+          "phoneNumber": "010-1234-5678"
         }
         """)
 public record SellerRegisterRequestDto(
@@ -22,7 +19,6 @@ public record SellerRegisterRequestDto(
         @NotBlank String businessNumber,
         @NotBlank @Size(max = 30) String mailOrderRegistrationNumber,
         @NotBlank @Size(max = 50) String ownerName,
-        @NotBlank @Size(max = 20) String phoneNumber,
-        @NotEmpty List<Long> interestCategoryIds
+        @NotBlank @Pattern(regexp = "^0\\d{1,2}-?\\d{3,4}-?\\d{4}$") @Size(max = 20) String phoneNumber
 ) {
 }

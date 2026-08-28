@@ -17,8 +17,7 @@ import java.util.List;
           "linkedProviders": ["KAKAO"],
           "seller": {
             "businessName": "문치프 스토어",
-            "status": "APPROVED",
-            "interestCategoryIds": [1, 2, 3]
+            "status": "APPROVED"
           }
         }
         """)
@@ -34,7 +33,6 @@ public record ProfileResponse(
 ) {
     public record SellerSummary(
             String businessName,
-            String status,
-            List<Long> interestCategoryIds
+            String status
     ) {}
 }

@@ -156,7 +156,7 @@ CREATE TABLE "demand_board" (
                                 "participant_count" INTEGER     NOT NULL DEFAULT 0,
                                 "price_min"         INTEGER     NULL,
                                 "price_max"         INTEGER     NULL,
-                                "status"            VARCHAR(20) NOT NULL DEFAULT 'OPEN',
+                                "status"            VARCHAR(20) NOT NULL DEFAULT 'GB_GATHERING',
                                 "judged_at"         TIMESTAMPTZ NULL,
                                 "sale_end_at"       TIMESTAMPTZ NOT NULL,  -- [수정] NULL → NOT NULL
                                 "created_at"        TIMESTAMPTZ NOT NULL DEFAULT now(),
