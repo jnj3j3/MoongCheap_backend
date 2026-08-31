@@ -9,12 +9,14 @@ import jakarta.validation.constraints.Size;
         {
           "nickname": "홍길동",
           "phoneNumber": "010-1234-5678",
-          "email": "hong@example.com"
+          "email": "hong@example.com",
+          "imageUrl": "https://cdn.example.com/profile/abc.jpg"
         }
         """)
 public record ProfileEditRequestDto(
         @Size(max = 20) String nickname,
         @Pattern(regexp = "^0\\d{1,2}-?\\d{3,4}-?\\d{4}$") String phoneNumber,
-        @Email String email
+        @Email String email,
+        @Size(max = 2048) String imageUrl
 ) {
 }

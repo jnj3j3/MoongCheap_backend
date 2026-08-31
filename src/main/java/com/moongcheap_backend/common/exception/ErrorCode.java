@@ -28,6 +28,8 @@ public enum ErrorCode {
     OAUTH_STATE_INVALID(HttpStatus.BAD_REQUEST, "AUTH_010", "OAuth 상태값 검증에 실패했습니다."),
     SOCIAL_ALREADY_LINKED(HttpStatus.CONFLICT, "AUTH_011", "이미 다른 회원에 연동된 소셜 계정입니다."),
     LAST_CREDENTIAL_CANNOT_UNLINK(HttpStatus.BAD_REQUEST, "AUTH_012", "마지막 로그인 수단은 해제할 수 없습니다."),
+    SOCIAL_SIGNUP_ALREADY_COMPLETE(HttpStatus.BAD_REQUEST, "AUTH_013", "이미 소셜 가입이 완료되었습니다."),
+    SOCIAL_SIGNUP_INCOMPLETE(HttpStatus.FORBIDDEN, "AUTH_016", "소셜 가입 완료가 필요합니다."),
     WITHDRAW_BLOCKED_HAS_ORDER(HttpStatus.BAD_REQUEST, "AUTH_014", "진행 중인 거래가 있어 탈퇴할 수 없습니다."),
     CONCURRENT_SIGNUP_CONFLICT(HttpStatus.CONFLICT, "AUTH_015", "회원가입에 실패했습니다. 잠시 후 다시 시도해주세요."),
 
