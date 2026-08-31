@@ -25,6 +25,7 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oauth2LoginSuccessHandler;
     private final OAuth2LoginFailureHandler oauth2LoginFailureHandler;
     private final SessionAuthenticationFilter sessionAuthenticationFilter;
+    private final IncompleteSignupFilter incompleteSignupFilter;
     private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
@@ -32,6 +33,7 @@ public class SecurityConfig {
         return http
             .addFilterBefore(sessionAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(incompleteSignupFilter, SessionAuthenticationFilter.class)
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))

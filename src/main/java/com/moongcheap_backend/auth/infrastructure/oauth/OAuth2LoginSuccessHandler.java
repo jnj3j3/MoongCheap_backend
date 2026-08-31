@@ -43,7 +43,11 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             request.getSession().setAttribute(AuthSessionManager.GOOGLE_ACCESS_TOKEN_ATTR, googleAccessToken);
         }
 
-        response.sendRedirect(redirectBaseUrl + "/oauth/callback");
+        boolean termsAgreed = Boolean.TRUE.equals(oauth2User.getAttribute(CustomOAuth2UserService.ATTR_TERMS_AGREED));
+        String redirectUrl = termsAgreed
+                ? redirectBaseUrl + "/oauth/callback"
+                : redirectBaseUrl + "/oauth/callback?status=incomplete";
+        response.sendRedirect(redirectUrl);
     }
 
     private String extractGoogleAccessTokenIfApplicable(Authentication authentication, HttpServletRequest request) {

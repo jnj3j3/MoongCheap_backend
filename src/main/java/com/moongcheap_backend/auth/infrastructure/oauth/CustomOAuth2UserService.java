@@ -34,6 +34,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     public static final String ATTR_MEMBER_ID = "memberId";
     public static final String ATTR_PRINCIPAL = "principal";
+    public static final String ATTR_TERMS_AGREED = "termsAgreed";
 
     private final DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
     private final MemberRepository memberRepository;
@@ -56,6 +57,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         Map<String, Object> enrichedAttrs = new HashMap<>(attrs.raw());
         enrichedAttrs.put(ATTR_MEMBER_ID, member.getId());
         enrichedAttrs.put(ATTR_PRINCIPAL, principal);
+        enrichedAttrs.put(ATTR_TERMS_AGREED, member.isTermsAgreed());
 
         String nameAttrKey = userRequest.getClientRegistration()
                 .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();

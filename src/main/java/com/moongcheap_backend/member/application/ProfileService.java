@@ -70,7 +70,7 @@ public class ProfileService {
             String digits = request.phoneNumber().replaceAll("[^0-9]", "");
             phoneEncrypted = encryptionService.encrypt(digits);
         }
-        member.changeProfile(nickname, request.email(), phoneEncrypted);
+        member.changeProfile(nickname, request.email(), phoneEncrypted, request.imageUrl());
     }
 
     private Member getMember(Long memberId) {

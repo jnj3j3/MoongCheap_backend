@@ -8,6 +8,7 @@ public record SessionPrincipal(
         String loginId,
         String nickname,
         Set<MemberRole> roles,
-        boolean sellerApproved
+        boolean sellerApproved,
+        boolean termsAgreed
 ) implements Serializable {
 }
