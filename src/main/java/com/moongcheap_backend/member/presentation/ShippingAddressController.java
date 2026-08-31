@@ -12,8 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.moongcheap_backend.common.response.IdResponse;
+
 import java.util.List;
-import java.util.Map;
 
 @Tag(name = "User · 배송지", description = "배송지 CRUD 및 기본 배송지 지정")
 @RestController
@@ -37,10 +38,9 @@ public class ShippingAddressController {
 
     @Operation(summary = "배송지 등록", description = "FN-B30-02. 최대 5개. 첫 배송지는 자동으로 기본으로 지정.")
     @PostMapping
-    public ResponseEntity<Map<String, Long>> create(SessionPrincipal principal,
-                                                    @RequestBody @Valid ShippingAddressRequestDto request) {
-        Long id = shippingAddressService.create(principal.memberId(), request);
-        return ResponseEntity.ok(Map.of("id", id));
+    public ResponseEntity<IdResponse> create(SessionPrincipal principal,
+                                             @RequestBody @Valid ShippingAddressRequestDto request) {
+        return ResponseEntity.ok(IdResponse.of(shippingAddressService.create(principal.memberId(), request)));
     }
 
     @Operation(summary = "배송지 수정", description = "FN-B30-02. 본인 소유 배송지에만 허용.")
