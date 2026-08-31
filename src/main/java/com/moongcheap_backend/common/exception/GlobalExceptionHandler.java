@@ -14,10 +14,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Map<String, ErrorCode> CONSTRAINT_ERROR_MAP = Map.of(
+            "uq_shipping_address_default",     ErrorCode.SHIPPING_ADDRESS_DEFAULT_CONFLICT,
+            "uq_demand_member_catalog_active", ErrorCode.DEMAND_ALREADY_EXISTS
+    );
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiError> handleBusiness(BusinessException e) {
@@ -81,10 +87,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> handleDataIntegrity(DataIntegrityViolationException e) {
         String msg = e.getMostSpecificCause().getMessage();
-        if (msg != null && msg.contains("uq_shipping_address_default")) {
-            ErrorCode ec = ErrorCode.SHIPPING_ADDRESS_DEFAULT_CONFLICT;
-            return ResponseEntity.status(ec.getStatus())
-                    .body(ApiError.of(ec.getCode(), ec.getMessage()));
+        if (msg != null) {
+            for (Map.Entry<String, ErrorCode> entry : CONSTRAINT_ERROR_MAP.entrySet()) {
+                if (msg.contains(entry.getKey())) {
+                    ErrorCode ec = entry.getValue();
+                    return ResponseEntity.status(ec.getStatus())
+                            .body(ApiError.of(ec.getCode(), ec.getMessage()));
+                }
+            }
         }
         log.error("Unhandled data integrity violation", e);
         ErrorCode ec = ErrorCode.INTERNAL_ERROR;

@@ -21,7 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import com.moongcheap_backend.common.response.IdResponse;
 
 @Tag(name = "Auth", description = "회원가입, 로그인, 로그아웃, 비밀번호 변경, 탈퇴")
 @Validated
@@ -37,9 +37,8 @@ public class AuthController {
 
     @Operation(summary = "아이디 회원가입", description = "MVP 기능정의 X. 아이디/비밀번호로 신규 계정을 생성한다.")
     @PostMapping("/signup")
-    public ResponseEntity<Map<String, Long>> create(@RequestBody @Valid SignUpRequestDto request) {
-        Long memberId = signUpService.signUp(request);
-        return ResponseEntity.ok(Map.of("memberId", memberId));
+    public ResponseEntity<IdResponse> create(@RequestBody @Valid SignUpRequestDto request) {
+        return ResponseEntity.ok(IdResponse.of(signUpService.signUp(request)));
     }
 
     @Operation(summary = "아이디 중복 검사", description = "MVP 기능정의 X. 정규화된 아이디 기준으로 활성 회원 중복 여부를 반환한다.")
