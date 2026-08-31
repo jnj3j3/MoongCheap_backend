@@ -46,6 +46,7 @@ APPROVED → WITHDRAWN (판매자 탈퇴 → softDelete())
 | `ASSIGNED` | O | 배정 완료 — 수요보드 편입, 진행 중 |
 | `PAYMENT_PENDING` | O | 낙찰 확정 — 본인 48시간 결제 대기 |
 | `CLOSED` | | 종료 — 본인 결제 완료로 요청 종결 (공구 전체 성립 여부와 무관) |
+| `FAILED` | | 성사 실패 — 소속 보드 미낙찰 또는 최소 수량 미달, 시스템 처리 |
 | `CANCELED` | | 사용자 취소 |
 | `EXPIRED` | | 소멸 — 미배정 2일 경과, 클러스터 생성 실패, 제안 무응답 |
 | `DELETED` | | 운영자·시스템 무효화 |
@@ -60,6 +61,7 @@ UNASSIGNED → EXPIRED                     (2일 초과 미배정)
 SUBSTITUTE_OFFERED → ASSIGNED            (제안 수락)
 SUBSTITUTE_OFFERED → EXPIRED             (제안 무응답·거절)
 ASSIGNED → PAYMENT_PENDING              (낙찰 확정)
+ASSIGNED → FAILED                       (소속 보드 미낙찰 / 최소 수량 미달, 시스템)
 PAYMENT_PENDING → CLOSED                (본인 결제 완료)
 ASSIGNED / UNASSIGNED → CANCELED        (사용자 취소, MVP 확정 대기)
 ```
