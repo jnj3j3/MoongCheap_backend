@@ -6,7 +6,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
@@ -24,6 +24,10 @@ server:
         secure: false
 
 moongcheap:
+  cors:
+    allowed-origins: "http://localhost:3000"
+  oauth:
+    redirect-base-url: "http://localhost:3000"
   security:
     encryption:
       password: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"

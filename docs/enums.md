@@ -1,28 +1,10 @@
 # Enum 값 정리
 
-## SellerStatus
-> `com.moongcheap_backend.member.domain.SellerStatus`
-> 판매자 계정의 심사·운영 상태를 나타냅니다.
-
-| 값 | 설명 |
-|---|---|
-| `PENDING` | 판매자 등록 신청 후 관리자 심사 대기 중 |
-| `APPROVED` | 심사 완료, 정상 영업 가능 상태 |
-| `BLOCKED` | 관리자에 의해 판매 차단된 상태 |
-| `WITHDRAWN` | 판매자 스스로 탈퇴한 상태 |
-
-**상태 전이**
-```
-PENDING → APPROVED   (관리자 승인)
-APPROVED → BLOCKED   (관리자 차단)
-APPROVED → WITHDRAWN (판매자 탈퇴 → softDelete())
-```
-
----
+> Status 값은 [status.md](status.md)를 참조하세요.
 
 ## MemberRole
-> `com.moongcheap_backend.common.security.MemberRole`
-> 회원의 역할(권한)을 나타냅니다. Spring Security 인증에 사용됩니다.
+> **Java enum** `com.moongcheap_backend.common.security.MemberRole`
+> 회원의 역할(권한)을 나타냅니다. Spring Security 인증에 사용됩니다. `Member.isSeller` 값에서 파생됩니다.
 
 | 값 | 설명 |
 |---|---|
@@ -32,7 +14,7 @@ APPROVED → WITHDRAWN (판매자 탈퇴 → softDelete())
 ---
 
 ## SocialProvider
-> `com.moongcheap_backend.member.domain.SocialProvider`
+> **Java enum** `com.moongcheap_backend.member.domain.SocialProvider`
 > 소셜 로그인 연동 제공자를 나타냅니다.
 
 | 값 | 설명 |
@@ -43,7 +25,7 @@ APPROVED → WITHDRAWN (판매자 탈퇴 → softDelete())
 ---
 
 ## NotificationType
-> `com.moongcheap_backend.notification.domain.NotificationType`
+> **Java enum** `com.moongcheap_backend.notification.domain.NotificationType`
 > 알림 종류를 나타냅니다. `mandatory` 필드가 `true`이면 수신 거부 불가 알림입니다.
 
 ### 구매자 알림
@@ -73,7 +55,7 @@ APPROVED → WITHDRAWN (판매자 탈퇴 → softDelete())
 ---
 
 ## ErrorCode
-> `com.moongcheap_backend.common.exception.ErrorCode`
+> **Java enum** `com.moongcheap_backend.common.exception.ErrorCode`
 > API 에러 응답에 사용되는 코드·메시지 매핑입니다.
 
 ### 공통
@@ -85,6 +67,7 @@ APPROVED → WITHDRAWN (판매자 탈퇴 → softDelete())
 | `FORBIDDEN` | 403 | COMMON_403 | 접근 권한이 없습니다. |
 | `NOT_FOUND` | 404 | COMMON_404 | 리소스를 찾을 수 없습니다. |
 | `INTERNAL_ERROR` | 500 | COMMON_500 | 서버 오류가 발생했습니다. |
+| `CONCURRENT_REQUEST_CONFLICT` | 409 | COMMON_409 | 요청이 충돌했습니다. 잠시 후 다시 시도해주세요. |
 
 ### Auth
 
@@ -120,6 +103,7 @@ APPROVED → WITHDRAWN (판매자 탈퇴 → softDelete())
 | `SHIPPING_ADDRESS_NOT_FOUND` | 404 | SHIP_001 | 배송지를 찾을 수 없습니다. |
 | `SHIPPING_ADDRESS_LIMIT_EXCEEDED` | 400 | SHIP_002 | 배송지는 최대 5개까지 등록할 수 있습니다. |
 | `SHIPPING_ADDRESS_FORBIDDEN` | 403 | SHIP_003 | 본인 소유의 배송지가 아닙니다. |
+| `SHIPPING_ADDRESS_DEFAULT_CONFLICT` | 409 | SHIP_004 | 기본 배송지 변경이 충돌했습니다. 다시 시도해주세요. |
 
 ### Seller
 
@@ -129,7 +113,5 @@ APPROVED → WITHDRAWN (판매자 탈퇴 → softDelete())
 | `BUSINESS_NUMBER_INVALID` | 400 | SELLER_002 | 사업자등록번호 형식이 올바르지 않습니다. |
 | `BUSINESS_NUMBER_DUPLICATED` | 409 | SELLER_003 | 이미 등록된 사업자등록번호입니다. |
 | `SELLER_NOT_FOUND` | 404 | SELLER_004 | 판매자 정보를 찾을 수 없습니다. |
-| `SELLER_INTEREST_CATEGORY_REQUIRED` | 400 | SELLER_005 | 관심 카테고리는 최소 1개 이상 지정해야 합니다. |
-| `SELLER_INTEREST_CATEGORY_LIMIT` | 400 | SELLER_006 | 관심 카테고리는 최대 10개까지 지정할 수 있습니다. |
 | `SELLER_MUTABLE_FIELD_ONLY` | 400 | SELLER_007 | 해당 필드는 수정할 수 없습니다. |
 | `SELLER_NOT_APPROVED` | 403 | SELLER_008 | 승인된 판매자만 사용할 수 있습니다. |

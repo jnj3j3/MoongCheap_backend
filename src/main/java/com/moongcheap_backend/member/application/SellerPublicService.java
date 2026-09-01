@@ -5,7 +5,7 @@ import com.moongcheap_backend.common.exception.BusinessException;
 import com.moongcheap_backend.common.exception.ErrorCode;
 import com.moongcheap_backend.member.domain.Seller;
 import com.moongcheap_backend.member.infrastructure.SellerRepository;
-import com.moongcheap_backend.member.presentation.dto.SellerPublicResponse;
+import com.moongcheap_backend.member.presentation.dto.SellerPublicResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,12 +18,12 @@ public class SellerPublicService {
     private final EncryptionService encryptionService;
 
     @Transactional(readOnly = true)
-    public SellerPublicResponse detail(Long sellerId) {
+    public SellerPublicResponseDto detail(Long sellerId) {
         Seller seller = sellerRepository.findByIdAndDeletedAtIsNull(sellerId)
                 .filter(Seller::isSellable)
                 .orElseThrow(() -> new BusinessException(ErrorCode.SELLER_NOT_FOUND));
         String bizPlain = encryptionService.decrypt(seller.getBusinessNumber());
-        return new SellerPublicResponse(
+        return new SellerPublicResponseDto(
                 seller.getBusinessName(),
                 seller.getOwnerName(),
                 encryptionService.maskBusinessNumber(bizPlain),

@@ -7,7 +7,7 @@ import com.moongcheap_backend.member.domain.Member;
 import com.moongcheap_backend.member.domain.ShippingAddress;
 import com.moongcheap_backend.member.infrastructure.MemberRepository;
 import com.moongcheap_backend.member.infrastructure.ShippingAddressRepository;
-import com.moongcheap_backend.member.presentation.dto.OrderMemberInfo;
+import com.moongcheap_backend.member.presentation.dto.OrderMemberInfoDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +21,7 @@ public class OrderMemberInfoService {
     private final EncryptionService encryptionService;
 
     @Transactional(readOnly = true)
-    public OrderMemberInfo getForOrder(Long memberId, Long shippingAddressId) {
+    public OrderMemberInfoDto getForOrder(Long memberId, Long shippingAddressId) {
         Member member = memberRepository.findByIdAndDeletedAtIsNull(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
         ShippingAddress address = shippingAddressRepository.findById(shippingAddressId)
@@ -31,10 +31,10 @@ public class OrderMemberInfoService {
         }
         String buyerPhone = encryptionService.decrypt(member.getPhoneNumber());
         String shipPhone = encryptionService.decrypt(address.getPhoneNumber());
-        return new OrderMemberInfo(
+        return new OrderMemberInfoDto(
                 member.getNickname(),
                 buyerPhone,
-                new OrderMemberInfo.ShippingSnapshot(
+                new OrderMemberInfoDto.ShippingSnapshot(
                         address.getRecipientName(),
                         shipPhone,
                         address.getZipcode(),

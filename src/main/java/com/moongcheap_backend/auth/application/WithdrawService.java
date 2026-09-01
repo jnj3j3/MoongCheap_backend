@@ -2,7 +2,7 @@ package com.moongcheap_backend.auth.application;
 
 import com.moongcheap_backend.auth.infrastructure.oauth.GoogleOAuth2Client;
 import com.moongcheap_backend.auth.infrastructure.oauth.KakaoOAuth2Client;
-import com.moongcheap_backend.auth.presentation.dto.WithdrawRequest;
+import com.moongcheap_backend.auth.presentation.dto.WithdrawRequestDto;
 import com.moongcheap_backend.auth.infrastructure.port.WithdrawEligibilityChecker;
 import com.moongcheap_backend.auth.infrastructure.session.AuthSessionManager;
 import com.moongcheap_backend.common.exception.BusinessException;
@@ -43,7 +43,7 @@ public class WithdrawService {
     private final GoogleOAuth2Client googleOAuth2Client;
 
     @Transactional
-    public void withdraw(Long memberId, WithdrawRequest request) {
+    public void withdraw(Long memberId, WithdrawRequestDto request) {
         Member member = memberRepository.findByIdAndDeletedAtIsNull(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
@@ -88,7 +88,7 @@ public class WithdrawService {
         return (String) session.getAttribute(AuthSessionManager.GOOGLE_ACCESS_TOKEN_ATTR);
     }
 
-    private void verifyLocalWithdraw(WithdrawRequest request, LocalCredential credential) {
+    private void verifyLocalWithdraw(WithdrawRequestDto request, LocalCredential credential) {
         if (request == null || request.password() == null || request.password().isBlank()) {
             throw new BusinessException(ErrorCode.PASSWORD_INVALID);
         }

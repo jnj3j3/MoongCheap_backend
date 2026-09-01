@@ -4,7 +4,7 @@ import com.moongcheap_backend.common.exception.BusinessException;
 import com.moongcheap_backend.common.exception.ErrorCode;
 import com.moongcheap_backend.member.application.OrderMemberInfoService;
 import com.moongcheap_backend.member.infrastructure.MemberRepository;
-import com.moongcheap_backend.member.presentation.dto.OrderMemberInfo;
+import com.moongcheap_backend.member.presentation.dto.OrderMemberInfoDto;
 import com.moongcheap_backend.order.domain.OrderStatus;
 import com.moongcheap_backend.order.domain.Orders;
 import com.moongcheap_backend.order.infrastructure.OrdersRepository;
@@ -30,7 +30,7 @@ public class OrderService {
     //주문하기
     public Void createOrder(Long memberId, CreateOrderRequest request) {
         //회원 상태 검증, 배송지 정보 호출
-        OrderMemberInfo orderMemberInfo = orderMemberInfoService.getForOrder(memberId,
+        OrderMemberInfoDto orderMemberInfo = orderMemberInfoService.getForOrder(memberId,
             request.shippingAddressId());
         //회원 소비자 키 검증
         return null;

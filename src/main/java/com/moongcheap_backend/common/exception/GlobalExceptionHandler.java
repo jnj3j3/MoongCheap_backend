@@ -1,19 +1,29 @@
 package com.moongcheap_backend.common.exception;
 
 import com.moongcheap_backend.common.response.ApiError;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Map<String, ErrorCode> CONSTRAINT_ERROR_MAP = Map.of(
+            "uq_shipping_address_default",     ErrorCode.SHIPPING_ADDRESS_DEFAULT_CONFLICT,
+            "uq_demand_member_catalog_active", ErrorCode.DEMAND_ALREADY_EXISTS
+    );
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiError> handleBusiness(BusinessException e) {
@@ -32,6 +42,27 @@ public class GlobalExceptionHandler {
                 .body(ApiError.of(ec.getCode(), ec.getMessage(), fieldErrors));
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiError> handleConstraintViolation(ConstraintViolationException e) {
+        List<ApiError.FieldError> fieldErrors = e.getConstraintViolations().stream()
+                .map(cv -> {
+                    String path = cv.getPropertyPath().toString();
+                    int dot = path.lastIndexOf('.');
+                    return new ApiError.FieldError(dot >= 0 ? path.substring(dot + 1) : path, cv.getMessage());
+                })
+                .toList();
+        ErrorCode ec = ErrorCode.INVALID_INPUT;
+        return ResponseEntity.status(ec.getStatus())
+                .body(ApiError.of(ec.getCode(), ec.getMessage(), fieldErrors));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        ErrorCode ec = ErrorCode.INVALID_INPUT;
+        return ResponseEntity.status(ec.getStatus())
+                .body(ApiError.of(ec.getCode(), ec.getMessage()));
+    }
+
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiError> handleAuth(AuthenticationException e) {
         ErrorCode ec = ErrorCode.UNAUTHORIZED;
@@ -42,6 +73,31 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiError> handleAccessDenied(AccessDeniedException e) {
         ErrorCode ec = ErrorCode.FORBIDDEN;
+        return ResponseEntity.status(ec.getStatus())
+                .body(ApiError.of(ec.getCode(), ec.getMessage()));
+    }
+
+    @ExceptionHandler(CannotAcquireLockException.class)
+    public ResponseEntity<ApiError> handleLockTimeout(CannotAcquireLockException e) {
+        ErrorCode ec = ErrorCode.CONCURRENT_REQUEST_CONFLICT;
+        return ResponseEntity.status(ec.getStatus())
+                .body(ApiError.of(ec.getCode(), ec.getMessage()));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiError> handleDataIntegrity(DataIntegrityViolationException e) {
+        String msg = e.getMostSpecificCause().getMessage();
+        if (msg != null) {
+            for (Map.Entry<String, ErrorCode> entry : CONSTRAINT_ERROR_MAP.entrySet()) {
+                if (msg.contains(entry.getKey())) {
+                    ErrorCode ec = entry.getValue();
+                    return ResponseEntity.status(ec.getStatus())
+                            .body(ApiError.of(ec.getCode(), ec.getMessage()));
+                }
+            }
+        }
+        log.error("Unhandled data integrity violation", e);
+        ErrorCode ec = ErrorCode.INTERNAL_ERROR;
         return ResponseEntity.status(ec.getStatus())
                 .body(ApiError.of(ec.getCode(), ec.getMessage()));
     }

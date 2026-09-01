@@ -29,6 +29,10 @@ server:
         same-site: lax
 
 moongcheap:
+  cors:
+    allowed-origins: "${ALLOWED_ORIGINS}"
+  oauth:
+    redirect-base-url: "${OAUTH_REDIRECT_BASE_URL}"
   security:
     encryption:
       password: "${MOONGCHEAP_ENC_PASSWORD}"

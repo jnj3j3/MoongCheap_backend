@@ -37,6 +37,9 @@ public class Member extends BaseTimeEntity {
     @Column(name = "is_seller", nullable = false)
     private boolean isSeller;
 
+    @Column(name = "terms_agreed_at")
+    private LocalDateTime termsAgreedAt;
+
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
@@ -52,10 +55,11 @@ public class Member extends BaseTimeEntity {
         this.isSeller = false;
     }
 
-    public void changeProfile(String nickname, String email, String phoneNumber) {
+    public void changeProfile(String nickname, String email, String phoneNumber, String image) {
         if (nickname != null) this.nickname = nickname;
         if (email != null) this.email = email;
         if (phoneNumber != null) this.phoneNumber = phoneNumber;
+        if (image != null) this.image = image;
     }
 
     public void withdraw() {
@@ -63,6 +67,14 @@ public class Member extends BaseTimeEntity {
         this.loginId = null;
         this.email = null;
         this.phoneNumber = null;
+    }
+
+    public void agreeTerms() {
+        this.termsAgreedAt = LocalDateTime.now();
+    }
+
+    public boolean isTermsAgreed() {
+        return this.termsAgreedAt != null;
     }
 
     public void becomeSeller() {
