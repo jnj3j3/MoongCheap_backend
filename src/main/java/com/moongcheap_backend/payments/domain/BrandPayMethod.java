@@ -2,6 +2,9 @@ package com.moongcheap_backend.payments.domain;
 
 import com.moongcheap_backend.common.entity.BaseTimeEntity;
 import com.moongcheap_backend.member.domain.Member;
+import com.moongcheap_backend.payments.domain.enums.PaymentType;
+import com.moongcheap_backend.payments.domain.enums.PaymentsMethodStatus;
+import com.moongcheap_backend.payments.domain.enums.ProviderCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,7 +16,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,12 +25,13 @@ import lombok.NoArgsConstructor;
 @Table(name = "brand_pay_method")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BrandPayMethod extends BaseTimeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id",  nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     //자동결제키

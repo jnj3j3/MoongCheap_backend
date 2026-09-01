@@ -1,4 +1,4 @@
-package com.moongcheap_backend.payments.domain;
+package com.moongcheap_backend.payments.domain.enums;
 
 public enum PaymentsStatus {
     READY,       // 결제 생성 후 인증 전 상태

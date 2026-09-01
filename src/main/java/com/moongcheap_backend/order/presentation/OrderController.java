@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,7 +39,8 @@ public class OrderController {
     @GetMapping("/list")
     public ResponseEntity<Page<OrderListResponse>> orderList(SessionPrincipal principal,
         @RequestParam(defaultValue = "ALL") OrderListTab tab,
-        @PageableDefault(size = 20) Pageable pageable) {
+        @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+        Pageable pageable) {
         return ResponseEntity.ok(orderService.viewOrderList(principal.memberId(), tab, pageable));
     }
 
@@ -61,10 +63,14 @@ public class OrderController {
 
     //배송지 입력
     @Operation(summary = "배송지 입력")
-    @PostMapping("/shipping-address")
-    public ResponseEntity<OrderDetailResponse> inputShippingAddress(SessionPrincipal principal,
+    @PostMapping("/{orderNo}/shipping-address")
+    public ResponseEntity<OrderDetailResponse> editShippingAddress(SessionPrincipal principal,
+        @PathVariable String orderNo,
         @RequestBody @Valid OrderShippingAddressRequest request) {
-        return ResponseEntity.ok(orderService.inputShippingAddress(principal.memberId(), request));
+        orderService.
+            updateShippingAddress(principal.memberId(), orderNo, request);
+        return ResponseEntity.ok(orderService.
+            viewOrderDetail(principal.memberId(), orderNo));
     }
 
     public enum OrderListTab {

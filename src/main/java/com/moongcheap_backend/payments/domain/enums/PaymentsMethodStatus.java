@@ -1,4 +1,4 @@
-package com.moongcheap_backend.payments.domain;
+package com.moongcheap_backend.payments.domain.enums;
 
 public enum PaymentsMethodStatus {
     ACTIVE, //사용 가능

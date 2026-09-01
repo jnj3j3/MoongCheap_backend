@@ -2,6 +2,9 @@ package com.moongcheap_backend.payments.domain;
 
 import com.moongcheap_backend.common.entity.BaseTimeEntity;
 import com.moongcheap_backend.order.domain.Orders;
+import com.moongcheap_backend.payments.domain.enums.PaymentsMethod;
+import com.moongcheap_backend.payments.domain.enums.PaymentsStatus;
+import com.moongcheap_backend.payments.domain.enums.PaymentsType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,12 +17,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import lombok.Builder.Default;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Getter

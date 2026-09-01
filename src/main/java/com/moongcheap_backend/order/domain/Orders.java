@@ -6,9 +6,9 @@ import com.moongcheap_backend.member.domain.Member;
 import com.moongcheap_backend.payments.domain.BrandPayMethod;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -43,7 +43,7 @@ public class Orders extends BaseTimeEntity {
     // 주문 연관 정보
     // 자동결제수단 id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brandpay_id", nullable = false)
+    @JoinColumn(name = "brandpay_id")
     private BrandPayMethod brandPayMethod;
 
     // 구매자 id
@@ -65,7 +65,7 @@ public class Orders extends BaseTimeEntity {
     private String productName;
 
     // 상품 이미지 url
-    @Column(name = "image_url")
+    @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
     // 수량
@@ -74,6 +74,9 @@ public class Orders extends BaseTimeEntity {
 
     @Column(name = "price", nullable = false)
     private Integer price;
+
+    @Column(name = "delivery_fee", nullable = false)
+    private Integer deliveryFee;
 
     @Column(name = "total_amount", nullable = false)
     private Integer totalAmount;
@@ -88,23 +91,23 @@ public class Orders extends BaseTimeEntity {
 
     // 배송지 스냅샷
     // 수령인 이름
-    @Column(name = "shipping_name", nullable = false, length = 50)
+    @Column(name = "shipping_name", length = 50)
     private String shippingName;
 
     // 수령인 전화번호
-    @Column(name = "phone_number", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "phone_number", columnDefinition = "TEXT")
     private String phoneNumber;
 
     // 우편번호
-    @Column(name = "zipcode", nullable = false, length = 5)
+    @Column(name = "zipcode", length = 5)
     private String zipcode;
 
     // 기본주소
-    @Column(name = "address", nullable = false)
+    @Column(name = "address")
     private String address;
 
     // 상세주소
-    @Column(name = "address_detail", nullable = false, length = 100)
+    @Column(name = "address_detail", length = 100)
     private String addressDetail;
 
     // 배송메모
@@ -115,5 +118,21 @@ public class Orders extends BaseTimeEntity {
     // 택배 송장번호
     @Column(name = "shipping_number", columnDefinition = "TEXT")
     private String shippingNumber;
+
+    public Void updateShipping(
+        String shippingName,
+        String phoneNumber,
+        String zipcode,
+        String address,
+        String addressDetail,
+        String shippingMemo) {
+        this.shippingName = shippingName;
+        this.phoneNumber = phoneNumber;
+        this.zipcode = zipcode;
+        this.address = address;
+        this.addressDetail = addressDetail;
+        this.shippingMemo = shippingMemo;
+        return null;
+    }
 
 }
