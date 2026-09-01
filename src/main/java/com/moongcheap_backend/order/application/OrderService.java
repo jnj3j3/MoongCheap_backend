@@ -15,7 +15,7 @@ import com.moongcheap_backend.order.presentation.dto.OrderDetailResponse.Product
 import com.moongcheap_backend.order.presentation.dto.OrderDetailResponse.ShippingInfo;
 import com.moongcheap_backend.order.presentation.dto.OrderListResponse;
 import com.moongcheap_backend.order.presentation.dto.OrderShippingAddressRequest;
-import com.moongcheap_backend.payments.application.OrderPaymentInfoService;
+import com.moongcheap_backend.payments.application.PaymentPublicService;
 import com.moongcheap_backend.payments.presentation.dto.OrderPaymentInfo;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderService {
 
     private final OrdersRepository ordersRepository;
-    private final OrderPaymentInfoService orderPaymentInfoService;
+    private final PaymentPublicService orderPaymentInfoService;
 
     //주문하기
     public Void createOrder(Long memberId, CreateOrderRequest request) {

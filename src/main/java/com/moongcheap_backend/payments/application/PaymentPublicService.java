@@ -6,7 +6,7 @@ import com.moongcheap_backend.payments.presentation.dto.OrderPaymentInfo;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OrderPaymentInfoService {
+public class PaymentPublicService {
 
     public OrderPaymentInfo getForOrder(Orders order) {
         return new OrderPaymentInfo(
