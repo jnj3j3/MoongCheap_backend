@@ -5,7 +5,7 @@ import com.moongcheap_backend.common.exception.ErrorCode;
 import com.moongcheap_backend.notification.domain.NotificationOptOut;
 import com.moongcheap_backend.notification.domain.NotificationType;
 import com.moongcheap_backend.notification.infrastructure.NotificationOptOutRepository;
-import com.moongcheap_backend.notification.presentation.dto.NotificationSettingResponse;
+import com.moongcheap_backend.notification.presentation.dto.NotificationSettingResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +22,7 @@ public class NotificationSettingService {
     private final NotificationOptOutRepository notificationOptOutRepository;
 
     @Transactional(readOnly = true)
-    public List<NotificationSettingResponse> getAll(Long memberId) {
+    public List<NotificationSettingResponseDto> getAll(Long memberId) {
         Set<NotificationType> disabled = notificationOptOutRepository.findAllByMemberId(memberId)
                 .stream()
                 .map(NotificationOptOut::getType)
@@ -30,7 +30,7 @@ public class NotificationSettingService {
         return Arrays.stream(NotificationType.values())
                 .map(type -> {
                     boolean enabled = !disabled.contains(type);
-                    return new NotificationSettingResponse(type, type.getDescription(), enabled, type.isMandatory());
+                    return new NotificationSettingResponseDto(type, type.getDescription(), enabled, type.isMandatory());
                 })
                 .toList();
     }

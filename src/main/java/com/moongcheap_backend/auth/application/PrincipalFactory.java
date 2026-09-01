@@ -22,7 +22,8 @@ public class PrincipalFactory {
                 member.getLoginId(),
                 member.getNickname(),
                 roles,
-                member.isSeller()
+                member.isSeller(),
+                member.isTermsAgreed()
         );
     }
 }

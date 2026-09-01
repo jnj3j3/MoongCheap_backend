@@ -9,11 +9,10 @@ import com.moongcheap_backend.member.domain.Member;
 import com.moongcheap_backend.member.domain.Seller;
 import com.moongcheap_backend.member.domain.SocialCredential;
 import com.moongcheap_backend.member.infrastructure.MemberRepository;
-import com.moongcheap_backend.category.infrastructure.SellerInterestCategoryRepository;
 import com.moongcheap_backend.member.infrastructure.SellerRepository;
 import com.moongcheap_backend.member.infrastructure.SocialCredentialRepository;
-import com.moongcheap_backend.member.presentation.dto.ProfileEditRequest;
-import com.moongcheap_backend.member.presentation.dto.ProfileResponse;
+import com.moongcheap_backend.member.presentation.dto.ProfileEditRequestDto;
+import com.moongcheap_backend.member.presentation.dto.ProfileResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,23 +27,22 @@ public class ProfileService {
 
     private final MemberRepository memberRepository;
     private final SellerRepository sellerRepository;
-    private final SellerInterestCategoryRepository interestCategoryRepository;
     private final SocialCredentialRepository socialCredentialRepository;
     private final NicknameService nicknameService;
     private final EncryptionService encryptionService;
 
     @Transactional(readOnly = true)
-    public ProfileResponse detail(Long memberId) {
+    public ProfileResponseDto detail(Long memberId) {
         Member member = getMember(memberId);
         List<SocialCredential> socials = socialCredentialRepository.findAllByMemberId(memberId);
-        ProfileResponse.SellerSummary sellerSummary = member.isSeller()
+        ProfileResponseDto.SellerSummary sellerSummary = member.isSeller()
                 ? sellerRepository.findByMemberIdAndDeletedAtIsNull(memberId)
                         .map(this::toSellerSummary)
                         .orElseThrow(() -> new IllegalStateException("is_seller=true인데 seller 레코드가 없습니다: " + memberId))
                 : null;
         String maskedPhone = member.getPhoneNumber() == null ? null :
                 encryptionService.maskPhoneNumber(encryptionService.decrypt(member.getPhoneNumber()));
-        return new ProfileResponse(
+        return new ProfileResponseDto(
                 member.getLoginId(),
                 member.getNickname(),
                 maskedPhone,
@@ -57,7 +55,7 @@ public class ProfileService {
     }
 
     @Transactional
-    public void edit(Long memberId, ProfileEditRequest request) {
+    public void edit(Long memberId, ProfileEditRequestDto request) {
         Member member = getMember(memberId);
         String nickname = null;
         if (request.nickname() != null && !request.nickname().isBlank()) {
@@ -72,7 +70,7 @@ public class ProfileService {
             String digits = request.phoneNumber().replaceAll("[^0-9]", "");
             phoneEncrypted = encryptionService.encrypt(digits);
         }
-        member.changeProfile(nickname, request.email(), phoneEncrypted);
+        member.changeProfile(nickname, request.email(), phoneEncrypted, request.imageUrl());
     }
 
     private Member getMember(Long memberId) {
@@ -80,14 +78,10 @@ public class ProfileService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
-    private ProfileResponse.SellerSummary toSellerSummary(Seller seller) {
-        List<Long> categoryIds = interestCategoryRepository.findAllBySellerId(seller.getId()).stream()
-                .map(c -> c.getCategoryId())
-                .toList();
-        return new ProfileResponse.SellerSummary(
+    private ProfileResponseDto.SellerSummary toSellerSummary(Seller seller) {
+        return new ProfileResponseDto.SellerSummary(
                 seller.getBusinessName(),
-                seller.getStatus().name(),
-                categoryIds
+                seller.getStatus().name()
         );
     }
 }

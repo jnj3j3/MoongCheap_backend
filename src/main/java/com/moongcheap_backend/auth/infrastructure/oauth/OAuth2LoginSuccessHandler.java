@@ -5,6 +5,7 @@ import com.moongcheap_backend.common.security.SessionPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
@@ -13,6 +14,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+
 @Component
 @RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
@@ -20,9 +23,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final AuthSessionManager sessionManager;
     private final OAuth2AuthorizedClientRepository authorizedClientRepository;
 
+    @Value("${moongcheap.oauth.redirect-base-url}")
+    private String redirectBaseUrl;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) {
+                                        Authentication authentication) throws IOException {
         OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
         SessionPrincipal principal = oauth2User.getAttribute(CustomOAuth2UserService.ATTR_PRINCIPAL);
         if (principal == null) {
@@ -36,6 +42,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         if (googleAccessToken != null) {
             request.getSession().setAttribute(AuthSessionManager.GOOGLE_ACCESS_TOKEN_ATTR, googleAccessToken);
         }
+
+        boolean termsAgreed = Boolean.TRUE.equals(oauth2User.getAttribute(CustomOAuth2UserService.ATTR_TERMS_AGREED));
+        String redirectUrl = termsAgreed
+                ? redirectBaseUrl + "/oauth/callback"
+                : redirectBaseUrl + "/oauth/callback?status=incomplete";
+        response.sendRedirect(redirectUrl);
     }
 
     private String extractGoogleAccessTokenIfApplicable(Authentication authentication, HttpServletRequest request) {
