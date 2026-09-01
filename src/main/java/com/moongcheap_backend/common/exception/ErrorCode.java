@@ -41,6 +41,10 @@ public enum ErrorCode {
     SHIPPING_ADDRESS_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "SHIP_002", "배송지는 최대 5개까지 등록할 수 있습니다."),
     SHIPPING_ADDRESS_FORBIDDEN(HttpStatus.FORBIDDEN, "SHIP_003", "본인 소유의 배송지가 아닙니다."),
 
+    // Order
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_001", "주문을 찾을 수 없습니다."),
+    ORDER_CANNOT_CANCEL(HttpStatus.CONFLICT, "ORDER_002", "현재 상태에서는 주문을 취소할 수 없습니다."),
+
     // Seller
     SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "SELLER_001", "이미 판매자로 등록되어 있습니다."),
     BUSINESS_NUMBER_INVALID(HttpStatus.BAD_REQUEST, "SELLER_002", "사업자등록번호 형식이 올바르지 않습니다."),

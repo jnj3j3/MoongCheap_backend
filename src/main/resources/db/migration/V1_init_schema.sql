@@ -517,7 +517,7 @@ ALTER TABLE "orders"
 
 CREATE UNIQUE INDEX "uq_orders_member_group_buy_active"
     ON "orders" ("member_id", "group_buy_id")
-    WHERE "order_status" NOT IN ('DELIVERED', 'CANCELED', 'REFUNDED');
+    WHERE "order_status" NOT IN ('DELIVERED', 'CANCELED', 'REFUNDED', 'COMPLEDED');
 
 /* -------- payout : 지급 요청 식별자 */
 ALTER TABLE "payout"
