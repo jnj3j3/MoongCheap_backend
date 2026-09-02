@@ -1,8 +1,10 @@
 package com.moongcheap_backend.order.application;
 
+import com.moongcheap_backend.common.crypto.EncryptionService;
 import com.moongcheap_backend.common.exception.BusinessException;
 import com.moongcheap_backend.common.exception.ErrorCode;
 import com.moongcheap_backend.groupbuy.domain.GroupBuy;
+import com.moongcheap_backend.member.application.OrderMemberInfoService;
 import com.moongcheap_backend.order.domain.OrderStatus;
 import com.moongcheap_backend.order.domain.Orders;
 import com.moongcheap_backend.order.infrastructure.OrdersRepository;
@@ -28,12 +30,17 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class OrderService {
 
+    //repo
     private final OrdersRepository ordersRepository;
+
+    //service
+    private final OrderMemberInfoService orderMemberInfoService;
     private final PaymentPublicService orderPaymentInfoService;
+    private final EncryptionService encryptionService;
 
     //주문하기
     public Void createOrder(Long memberId, CreateOrderRequest request) {
-        //회원 상태 검증
+        orderMemberInfoService.validateActiveMember(memberId);
         //회원 소비자 키 검증
         return null;
     }
@@ -42,6 +49,8 @@ public class OrderService {
     @Transactional(readOnly = true)
     public Page<OrderListResponse> viewOrderList(Long memberId, OrderListTab orderListTab,
         Pageable pageable) {
+        orderMemberInfoService.validateActiveMember(memberId);
+
         Page<Orders> orders = switch (orderListTab) {
             case ALL -> ordersRepository.findAllByCustomer_Id(memberId, pageable);
             case IN_PROGRESS -> ordersRepository.findAllByCustomer_IdAndOrderStatusIn(
@@ -68,6 +77,8 @@ public class OrderService {
     //주문상세조회
     @Transactional(readOnly = true)
     public OrderDetailResponse viewOrderDetail(Long memberId, String orderNo) {
+        orderMemberInfoService.validateActiveMember(memberId);
+
         Orders order = ordersRepository.findByOrderNoAndMember_Id(orderNo, memberId).
             orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -108,6 +119,8 @@ public class OrderService {
     //주문취소
     @Transactional
     public void orderCancel(Long memberId, String orderNo) {
+        orderMemberInfoService.validateActiveMember(memberId);
+
         Orders order = findOrderForUpdate(orderNo, memberId);
 
         if (order.getOrderStatus() == OrderStatus.CANCELED) {
@@ -127,6 +140,8 @@ public class OrderService {
         String orderNo,
         OrderShippingAddressRequest request
     ) {
+        orderMemberInfoService.validateActiveMember(memberId);
+
         Orders order = findOrderForUpdate(orderNo, memberId);
 
         if (order.getOrderStatus() != OrderStatus.PAYMENT_COMPLETED) {

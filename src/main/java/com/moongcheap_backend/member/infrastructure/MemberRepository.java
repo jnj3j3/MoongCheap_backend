@@ -12,6 +12,7 @@ import java.util.Set;
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByLoginIdAndDeletedAtIsNull(String loginId);
     Optional<Member> findByIdAndDeletedAtIsNull(Long id);
+    boolean existsByIdAndDeletedAtIsNull(Long id);
     boolean existsByLoginIdAndDeletedAtIsNull(String loginId);
     boolean existsByNicknameAndDeletedAtIsNull(String nickname);
 

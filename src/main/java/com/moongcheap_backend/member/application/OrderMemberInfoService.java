@@ -23,26 +23,34 @@ public class OrderMemberInfoService {
     @Transactional(readOnly = true)
     public OrderMemberInfoDto getForOrder(Long memberId, Long shippingAddressId) {
         Member member = memberRepository.findByIdAndDeletedAtIsNull(memberId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
         ShippingAddress address = shippingAddressRepository.findById(shippingAddressId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.SHIPPING_ADDRESS_NOT_FOUND));
+            .orElseThrow(() -> new BusinessException(ErrorCode.SHIPPING_ADDRESS_NOT_FOUND));
         if (!address.getMemberId().equals(memberId)) {
             throw new BusinessException(ErrorCode.SHIPPING_ADDRESS_FORBIDDEN);
         }
         String buyerPhone = encryptionService.decrypt(member.getPhoneNumber());
         String shipPhone = encryptionService.decrypt(address.getPhoneNumber());
         return new OrderMemberInfoDto(
-                member.getNickname(),
-                buyerPhone,
-                new OrderMemberInfoDto.ShippingSnapshot(
-                        address.getRecipientName(),
-                        shipPhone,
-                        address.getZipcode(),
-                        address.getAddress(),
-                        address.getAddressDetail(),
-                        address.getEntranceCode(),
-                        address.getRequestMessage()
-                )
+            member.getNickname(),
+            buyerPhone,
+            new OrderMemberInfoDto.ShippingSnapshot(
+                address.getRecipientName(),
+                shipPhone,
+                address.getZipcode(),
+                address.getAddress(),
+                address.getAddressDetail(),
+                address.getEntranceCode(),
+                address.getRequestMessage()
+            )
         );
+    }
+
+    //회원 상태 검증용 메서드
+    @Transactional(readOnly = true)
+    public void validateActiveMember(Long memberId) {
+        if (!memberRepository.existsByIdAndDeletedAtIsNull(memberId)) {
+            throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
+        }
     }
 }
