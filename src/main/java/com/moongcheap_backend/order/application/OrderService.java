@@ -3,13 +3,16 @@ package com.moongcheap_backend.order.application;
 import com.moongcheap_backend.common.crypto.EncryptionService;
 import com.moongcheap_backend.common.exception.BusinessException;
 import com.moongcheap_backend.common.exception.ErrorCode;
+import com.moongcheap_backend.demand.application.demand.OrderDemandService;
+import com.moongcheap_backend.demand.domain.demand.Demand;
+import com.moongcheap_backend.groupbuy.application.GroupBuyPublicService;
 import com.moongcheap_backend.groupbuy.domain.GroupBuy;
 import com.moongcheap_backend.member.application.OrderMemberInfoService;
+import com.moongcheap_backend.member.domain.Seller;
 import com.moongcheap_backend.order.domain.OrderStatus;
 import com.moongcheap_backend.order.domain.Orders;
 import com.moongcheap_backend.order.infrastructure.OrdersRepository;
 import com.moongcheap_backend.order.presentation.OrderController.OrderListTab;
-import com.moongcheap_backend.order.presentation.dto.CreateOrderRequest;
 import com.moongcheap_backend.order.presentation.dto.OrderDetailResponse;
 import com.moongcheap_backend.order.presentation.dto.OrderDetailResponse.GroupBuyInfo;
 import com.moongcheap_backend.order.presentation.dto.OrderDetailResponse.PaymentInfo;
@@ -18,8 +21,14 @@ import com.moongcheap_backend.order.presentation.dto.OrderDetailResponse.Shippin
 import com.moongcheap_backend.order.presentation.dto.OrderListResponse;
 import com.moongcheap_backend.order.presentation.dto.OrderShippingAddressRequest;
 import com.moongcheap_backend.payments.application.PaymentPublicService;
+import com.moongcheap_backend.payments.domain.BrandPayMethod;
 import com.moongcheap_backend.payments.presentation.dto.OrderPaymentInfo;
+import com.moongcheap_backend.product.domain.product.Product;
+import jakarta.persistence.EntityManager;
+import java.time.Instant;
+import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,12 +46,70 @@ public class OrderService {
     private final OrderMemberInfoService orderMemberInfoService;
     private final PaymentPublicService orderPaymentInfoService;
     private final EncryptionService encryptionService;
+    private final GroupBuyPublicService groupBuyPublicService;
+    private final OrderDemandService orderDemandService;
+    private final EntityManager entityManager;
 
-    //주문하기
-    public Void createOrder(Long memberId, CreateOrderRequest request) {
-        orderMemberInfoService.validateActiveMember(memberId);
-        //회원 소비자 키 검증
+    //자동주문
+    @Transactional
+    public Void autoCreateOrder(Long groupBuyId) {
+        //groupbuy호출 및 검증하고 seller, product join해서 가져오기
+        GroupBuy groupBuy = groupBuyPublicService.getOrderSource(groupBuyId);
+        Seller seller = groupBuy.getSeller();
+        Product product = groupBuy.getProduct();
+
+        //seller, product 검증
+        if (seller.getDeletedAt() != null) {
+            throw new BusinessException(ErrorCode.SELLER_NOT_FOUND);
+        }
+        if (!seller.isSellable()) {
+            throw new BusinessException(ErrorCode.SELLER_NOT_APPROVED);
+        }
+        if (!product.isAwarded()) {
+            throw new BusinessException(ErrorCode.PRODUCT_NOT_ORDERABLE);
+        }
+        if (!product.getSellerId().equals(seller.getId())
+            || product.getThumbnailUrl() == null
+            || product.getThumbnailUrl().isBlank()) {
+            throw new BusinessException(ErrorCode.PRODUCT_NOT_ORDERABLE);
+        }
+
+        //demand_board_id로 demand에서 대상 추출
+        List<Demand> demands = orderDemandService.getPaymentPendingForOrder(
+            product.getDemandBoardId()
+        );
+
+        List<Orders> orders = demands.stream()
+            .map(demand -> Orders.create(
+                createOrderNo(),
+                demand.getMemberId(),
+                getBrandPayMethodReference(demand.getPayMethodId()),
+                groupBuy,
+                product.getId(),
+                groupBuy.getTitle(),
+                product.getThumbnailUrl(),
+                demand.getQuantity(),
+                product.getUnitPrice(),
+                product.getShippingFee(),
+                seller.getId(),
+                seller.getBusinessName()
+            ))
+            .toList();
+
+        ordersRepository.saveAll(orders);
         return null;
+    }
+
+    private BrandPayMethod getBrandPayMethodReference(Long payMethodId) {
+        return payMethodId == null
+            ? null
+            : entityManager.getReference(BrandPayMethod.class, payMethodId);
+    }
+
+    private String createOrderNo() {
+        String timestamp = String.valueOf(Instant.now().toEpochMilli());
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        return "ORD-" + timestamp + "-" + uuid;
     }
 
     //주문목록조회
@@ -52,8 +119,8 @@ public class OrderService {
         orderMemberInfoService.validateActiveMember(memberId);
 
         Page<Orders> orders = switch (orderListTab) {
-            case ALL -> ordersRepository.findAllByCustomer_Id(memberId, pageable);
-            case IN_PROGRESS -> ordersRepository.findAllByCustomer_IdAndOrderStatusIn(
+            case ALL -> ordersRepository.findAllByMemberId(memberId, pageable);
+            case IN_PROGRESS -> ordersRepository.findAllByMemberIdAndOrderStatusIn(
                 memberId,
                 Set.of(
                     OrderStatus.PAYMENT_PENDING,
@@ -63,10 +130,10 @@ public class OrderService {
                 ),
                 pageable
             );
-            case DELIVERED -> ordersRepository.findAllByCustomer_IdAndOrderStatusIn(
+            case DELIVERED -> ordersRepository.findAllByMemberIdAndOrderStatusIn(
                 memberId, Set.of(OrderStatus.DELIVERED), pageable
             );
-            case COMPLETED -> ordersRepository.findAllByCustomer_IdAndOrderStatusIn(
+            case COMPLETED -> ordersRepository.findAllByMemberIdAndOrderStatusIn(
                 memberId, Set.of(OrderStatus.COMPLEDED), pageable
             );
         };
@@ -79,7 +146,7 @@ public class OrderService {
     public OrderDetailResponse viewOrderDetail(Long memberId, String orderNo) {
         orderMemberInfoService.validateActiveMember(memberId);
 
-        Orders order = ordersRepository.findByOrderNoAndMember_Id(orderNo, memberId).
+        Orders order = ordersRepository.findDetailByOrderNoAndMemberId(orderNo, memberId).
             orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
         GroupBuy groupBuy = order.getGroupBuy();
@@ -194,7 +261,7 @@ public class OrderService {
     //주문 검색(수정용)
     private Orders findOrderForUpdate(String orderNo, Long memberId) {
         Orders order = ordersRepository.
-            findByOrderNoAndCustomer_Id(orderNo, memberId).
+            findByOrderNoAndMemberId(orderNo, memberId).
             orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
         return order;

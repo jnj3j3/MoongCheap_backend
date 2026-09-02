@@ -20,16 +20,15 @@ public class SellerPublicService {
     @Transactional(readOnly = true)
     public SellerPublicResponseDto detail(Long sellerId) {
         Seller seller = sellerRepository.findByIdAndDeletedAtIsNull(sellerId)
-                .filter(Seller::isSellable)
-                .orElseThrow(() -> new BusinessException(ErrorCode.SELLER_NOT_FOUND));
+            .filter(Seller::isSellable)
+            .orElseThrow(() -> new BusinessException(ErrorCode.SELLER_NOT_FOUND));
         String bizPlain = encryptionService.decrypt(seller.getBusinessNumber());
         return new SellerPublicResponseDto(
-                seller.getBusinessName(),
-                seller.getOwnerName(),
-                encryptionService.maskBusinessNumber(bizPlain),
-                seller.getMailOrderRegistrationNumber(),
-                seller.getPhoneNumber()
+            seller.getBusinessName(),
+            seller.getOwnerName(),
+            encryptionService.maskBusinessNumber(bizPlain),
+            seller.getMailOrderRegistrationNumber(),
+            seller.getPhoneNumber()
         );
     }
-
 }

@@ -2,7 +2,6 @@ package com.moongcheap_backend.order.domain;
 
 import com.moongcheap_backend.common.entity.BaseTimeEntity;
 import com.moongcheap_backend.groupbuy.domain.GroupBuy;
-import com.moongcheap_backend.member.domain.Member;
 import com.moongcheap_backend.payments.domain.BrandPayMethod;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -47,9 +46,8 @@ public class Orders extends BaseTimeEntity {
     private BrandPayMethod brandPayMethod;
 
     // 구매자 id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member customer;
+    @Column(name = "member_id", nullable = false)
+    private Long memberId;
 
     // 공동구매 id
     @ManyToOne(fetch = FetchType.LAZY)
@@ -57,7 +55,6 @@ public class Orders extends BaseTimeEntity {
     private GroupBuy groupBuy;
 
     // 상품 및 결제 금액
-    // 나중에 product 테이블이 생기면 외래키로 전환
     @Column(name = "product_id", nullable = false)
     private Long productId;
 
@@ -118,6 +115,38 @@ public class Orders extends BaseTimeEntity {
     // 택배 송장번호
     @Column(name = "shipping_number", columnDefinition = "TEXT")
     private String shippingNumber;
+
+    public static Orders create(
+        String orderNo,
+        Long memberId,
+        BrandPayMethod brandPayMethod,
+        GroupBuy groupBuy,
+        Long productId,
+        String productName,
+        String imageUrl,
+        Integer quantity,
+        Integer price,
+        Integer deliveryFee,
+        Long sellerId,
+        String businessName
+    ) {
+        Orders order = new Orders();
+        order.orderNo = orderNo;
+        order.orderStatus = OrderStatus.PAYMENT_PENDING;
+        order.memberId = memberId;
+        order.brandPayMethod = brandPayMethod;
+        order.groupBuy = groupBuy;
+        order.productId = productId;
+        order.productName = productName;
+        order.imageUrl = imageUrl;
+        order.sum = quantity;
+        order.price = price;
+        order.deliveryFee = deliveryFee;
+        order.totalAmount = Math.addExact(Math.multiplyExact(price, quantity), deliveryFee);
+        order.sellerId = sellerId;
+        order.businessName = businessName;
+        return order;
+    }
 
     public Void updateShipping(
         String shippingName,

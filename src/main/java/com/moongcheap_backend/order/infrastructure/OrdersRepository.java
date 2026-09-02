@@ -14,13 +14,13 @@ import org.springframework.data.repository.query.Param;
 
 public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
-    Page<Orders> findAllByCustomer_Id(Long memberId, Pageable pageable);
+    Page<Orders> findAllByMemberId(Long memberId, Pageable pageable);
 
-    Page<Orders> findAllByCustomer_IdAndOrderStatusIn(Long memberId,
+    Page<Orders> findAllByMemberIdAndOrderStatusIn(Long memberId,
         Collection<OrderStatus> orderStatuses, Pageable pageable);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<Orders> findByOrderNoAndCustomer_Id(String orderNo, Long memberId);
+    Optional<Orders> findByOrderNoAndMemberId(String orderNo, Long memberId);
 
     @Query("""
         select o
@@ -28,9 +28,9 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
         join fetch o.groupBuy
         left join fetch o.brandPayMethod
         where o.orderNo = :orderNo
-          and o.customer.id = :memberId
+          and o.memberId = :memberId
         """)
-    Optional<Orders> findByOrderNoAndMember_Id(
+    Optional<Orders> findDetailByOrderNoAndMemberId(
         @Param("orderNo") String orderNo,
         @Param("memberId") Long memberId
     );

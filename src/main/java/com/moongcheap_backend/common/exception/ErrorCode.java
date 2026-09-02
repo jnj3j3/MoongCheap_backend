@@ -50,6 +50,7 @@ public enum ErrorCode {
 
     // Product
     PRODUCT_CATALOG_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_001", "상품 카탈로그를 찾을 수 없습니다."),
+    PRODUCT_NOT_ORDERABLE(HttpStatus.CONFLICT, "PRODUCT_002", "현재 주문할 수 없는 상품입니다."),
 
     // Demand
     DEMAND_ALREADY_EXISTS(HttpStatus.CONFLICT, "DEMAND_001", "이미 진행 중인 수요 요청이 있습니다."),
@@ -68,7 +69,8 @@ public enum ErrorCode {
     SELLER_NOT_APPROVED(HttpStatus.FORBIDDEN, "SELLER_008", "승인된 판매자만 사용할 수 있습니다."),
 
     // GroupBuy
-    GROUPBUY_NOT_FOUND(HttpStatus.NOT_FOUND, "GROUPBUY_001", "공동구매를 찾을 수 없습니다.");
+    GROUPBUY_NOT_FOUND(HttpStatus.NOT_FOUND, "GROUPBUY_001", "공동구매를 찾을 수 없습니다."),
+    GROUPBUY_NOT_OPEN(HttpStatus.CONFLICT, "GROUPBUY_002", "현재 주문할 수 없는 공동구매입니다.");
 
     private final HttpStatus status;
     private final String code;
