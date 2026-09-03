@@ -171,7 +171,8 @@ public class OrderService {
             ),
             new ShippingInfo(
                 order.getShippingName(),
-                order.getPhoneNumber(),
+                encryptionService.maskPhoneNumber(
+                    encryptionService.decrypt(order.getPhoneNumber())),
                 combineAddress(order.getAddress(), order.getAddressDetail())
             ),
             new PaymentInfo(
@@ -215,9 +216,11 @@ public class OrderService {
             throw new BusinessException(ErrorCode.ORDER_CANNOT_SHIPPING);
         }
 
+        String phoneDigits = request.phoneNumber().replaceAll("[^0-9]", "");
+
         order.updateShipping(
             request.shippingName(),
-            request.phoneNumber(),
+            encryptionService.encrypt(phoneDigits),
             request.zipcode(),
             request.address(),
             request.addressDetail(),

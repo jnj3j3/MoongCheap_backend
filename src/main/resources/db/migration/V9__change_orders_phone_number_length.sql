@@ -1,0 +1,4 @@
+ALTER TABLE "orders"
+    ALTER COLUMN "phone_number" TYPE VARCHAR(512);
+
+ALTER SEQUENCE "orders_id_seq" INCREMENT BY 20;

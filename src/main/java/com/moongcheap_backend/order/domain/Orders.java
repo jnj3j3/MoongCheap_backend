@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -27,7 +28,12 @@ public class Orders extends BaseTimeEntity {
 
     // 주문 식별 및 상태
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "orders_seq_generator")
+    @SequenceGenerator(
+        name = "orders_seq_generator",
+        sequenceName = "orders_id_seq",
+        allocationSize = 20
+    )
     private Long id;
 
     // 영문 대소문자, 숫자, 특수문자 -, _로 이루어진 6자 이상 64자 이하의 문자열
@@ -92,7 +98,7 @@ public class Orders extends BaseTimeEntity {
     private String shippingName;
 
     // 수령인 전화번호
-    @Column(name = "phone_number", columnDefinition = "TEXT")
+    @Column(name = "phone_number", length = 512)
     private String phoneNumber;
 
     // 우편번호
