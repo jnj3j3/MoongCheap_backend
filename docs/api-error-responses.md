@@ -139,3 +139,49 @@
 |------|------|---------|
 | 404 | PRODUCT_001 | 상품 카탈로그를 찾을 수 없습니다. |
 | 409 | DEMAND_001 | 이미 진행 중인 수요 요청이 있습니다. |
+
+#### `GET /api/members/me/demand/{demandId}` — 수요 단건 조회
+| HTTP | code | message |
+|------|------|---------|
+| 404 | DEMAND_002 | 수요 요청을 찾을 수 없습니다. |
+
+#### `DELETE /api/members/me/demand/{demandId}` — 수요 취소
+| HTTP | code | message |
+|------|------|---------|
+| 404 | DEMAND_002 | 수요 요청을 찾을 수 없습니다. |
+| 403 | DEMAND_003 | 본인의 수요 요청이 아닙니다. |
+
+#### `PATCH /api/members/me/demand/{demandId}/accept` — 대체 오퍼 승낙
+| HTTP | code | message |
+|------|------|---------|
+| 400 | DEMAND_007 | 현재 상태에서는 대체 오퍼를 승낙할 수 없습니다. |
+| 404 | DEMAND_002 | 수요 요청을 찾을 수 없습니다. |
+| 404 | DEMAND_004 | 수요 보드를 찾을 수 없습니다. |
+| 409 | DEMAND_001 | 이미 진행 중인 수요 요청이 있습니다. (제안된 상품 catalog 중복 시) |
+
+#### `PATCH /api/members/me/demand/{demandId}/reject` — 대체 오퍼 거절
+| HTTP | code | message |
+|------|------|---------|
+| 400 | DEMAND_007 | 현재 상태에서는 대체 오퍼를 승낙할 수 없습니다. |
+| 404 | DEMAND_002 | 수요 요청을 찾을 수 없습니다. |
+
+---
+
+### DemandBoard
+
+#### `GET /api/demand-boards/{demandBoardId}` — 수요 보드 단건 조회
+| HTTP | code | message |
+|------|------|---------|
+| 404 | DEMAND_004 | 수요 보드를 찾을 수 없습니다. |
+
+#### `POST /api/demand-boards/{demandBoardId}/join` — 수요 보드 참가
+| HTTP | code | message |
+|------|------|---------|
+| 400 | DEMAND_006 | 마감된 수요 보드입니다. |
+| 404 | DEMAND_004 | 수요 보드를 찾을 수 없습니다. (GB_GATHERING 상태 아님 포함) |
+| 409 | DEMAND_001 | 이미 진행 중인 수요 요청이 있습니다. |
+
+#### `GET /api/demand-boards/{demandBoardId}/auction-result` — 낙찰 결과 조회
+| HTTP | code | message |
+|------|------|---------|
+| 404 | DEMAND_004 | 수요 보드를 찾을 수 없습니다. (GB_ACTION_REQUIRED 상태 아님 또는 미참여 포함) |

@@ -7,6 +7,11 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
+  data:
+    web:
+      pageable:
+        max-page-size: 20
+
   jpa:
     open-in-view: false
     properties:
@@ -46,6 +51,9 @@ springdoc:
   default-produces-media-type: application/json
 
 moongcheap:
+  batch:
+    demand-expire:
+      cron: "0 5 * * * *"
   security:
     session:
       absolute-ttl-default: 24h
