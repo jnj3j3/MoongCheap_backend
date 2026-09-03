@@ -39,11 +39,13 @@ public class DemandBoardService {
             List.of(DemandBoardStatus.GB_ACTION_REQUIRED, DemandBoardStatus.GB_GATHERING));
     }
 
+    @Transactional(readOnly = true)
     public DemandBoardListDto getHostDemandBoard(Pageable pageable) {
         return new DemandBoardListDto(demandBoardQueryRepository.getDemandBoardItems(
             List.of(DemandBoardStatus.GB_GATHERING), pageable));
     }
 
+    @Transactional(readOnly = true)
     public DemandBoardDto getById(Long memberId, Long demandBoardId) {
         DemandBoardSummaryDto summary = demandBoardQueryRepository.getDemandBoardItemsById(
                 demandBoardId)
@@ -55,7 +57,7 @@ public class DemandBoardService {
         return DemandBoardDto.from(summary, isParticipating);
     }
 
-
+    @Transactional(readOnly = true)
     public CatalogDemandBoardListDto getByCatalogId(
         Long memberId, Long catalogId, Pageable pageable, Integer minPrice, Integer maxPrice) {
         Pageable fetchPageable = PageRequest.of(
@@ -66,6 +68,7 @@ public class DemandBoardService {
         return CatalogDemandBoardListDto.of(items, pageable);
     }
 
+    @Transactional(readOnly = true)
     public AuctionResultDto getAuctionResult(Long memberId, Long demandBoardId) {
         return demandBoardQueryRepository.getAuctionResult(demandBoardId, memberId)
             .orElseThrow(() -> new BusinessException(ErrorCode.DEMAND_BOARD_NOT_FOUND));
