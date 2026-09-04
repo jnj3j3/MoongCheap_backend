@@ -18,4 +18,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("SELECT m.nickname FROM Member m WHERE m.nickname IN :nicknames AND m.deletedAt IS NULL")
     Set<String> findTakenNicknames(@Param("nicknames") Collection<String> nicknames);
+
+    @Query("SELECT m.id FROM Member m WHERE m.id IN :memberIds AND m.deletedAt IS NULL")
+    Set<Long> findActiveMemberIds(@Param("memberIds") Collection<Long> memberIds);
 }

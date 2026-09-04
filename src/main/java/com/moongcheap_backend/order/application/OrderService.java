@@ -29,6 +29,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +39,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class OrderService {
+
+    private static final int ORDER_BATCH_SIZE = 20;
 
     //repo
     private final OrdersRepository ordersRepository;
@@ -70,7 +73,9 @@ public class OrderService {
         }
         if (!product.getSellerId().equals(seller.getId())
             || product.getThumbnailUrl() == null
-            || product.getThumbnailUrl().isBlank()) {
+            || product.getThumbnailUrl().isBlank()
+            || product.getUnitPrice() == null
+            || product.getShippingFee() == null) {
             throw new BusinessException(ErrorCode.PRODUCT_NOT_ORDERABLE);
         }
 
@@ -79,9 +84,19 @@ public class OrderService {
             product.getDemandBoardId()
         );
 
+        Set<Long> demandMemberIds = demands.stream()
+            .map(Demand::getMemberId)
+            .collect(Collectors.toSet());
+        Set<Long> activeMemberIds = orderMemberInfoService.getActiveMemberIds(demandMemberIds);
+
+        //demand리스트로 order리스트 생성
         List<Orders> orders = demands.stream()
+            // 탈퇴하지 않아 deletedAt이 null인 회원의 수요만 주문으로 생성한다.
+            .filter(demand -> activeMemberIds.contains(demand.getMemberId()))
+            .filter(demand -> product.getUnitPrice() <= demand.getDesiredPriceMax())
             .map(demand -> Orders.create(
                 createOrderNo(),
+                demand.getId(),
                 demand.getMemberId(),
                 getBrandPayMethodReference(demand.getPayMethodId()),
                 groupBuy,
@@ -96,7 +111,10 @@ public class OrderService {
             ))
             .toList();
 
-        ordersRepository.saveAll(orders);
+        for (int fromIndex = 0; fromIndex < orders.size(); fromIndex += ORDER_BATCH_SIZE) {
+            int toIndex = Math.min(fromIndex + ORDER_BATCH_SIZE, orders.size());
+            ordersRepository.saveAll(orders.subList(fromIndex, toIndex));
+        }
         return null;
     }
 

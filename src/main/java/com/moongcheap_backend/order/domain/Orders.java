@@ -55,6 +55,10 @@ public class Orders extends BaseTimeEntity {
     @Column(name = "member_id", nullable = false)
     private Long memberId;
 
+    // 주문을 생성한 수요 id (멱등성 키)
+    @Column(name = "demand_id", nullable = false, unique = true, updatable = false)
+    private Long demandId;
+
     // 공동구매 id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_buy_id", nullable = false)
@@ -124,6 +128,7 @@ public class Orders extends BaseTimeEntity {
 
     public static Orders create(
         String orderNo,
+        Long demandId,
         Long memberId,
         BrandPayMethod brandPayMethod,
         GroupBuy groupBuy,
@@ -139,6 +144,7 @@ public class Orders extends BaseTimeEntity {
         Orders order = new Orders();
         order.orderNo = orderNo;
         order.orderStatus = OrderStatus.PAYMENT_PENDING;
+        order.demandId = demandId;
         order.memberId = memberId;
         order.brandPayMethod = brandPayMethod;
         order.groupBuy = groupBuy;
@@ -148,7 +154,7 @@ public class Orders extends BaseTimeEntity {
         order.sum = quantity;
         order.price = price;
         order.deliveryFee = deliveryFee;
-        order.totalAmount = Math.addExact(Math.multiplyExact(price, quantity), deliveryFee);
+        order.totalAmount = Math.multiplyExact(price, quantity);
         order.sellerId = sellerId;
         order.businessName = businessName;
         return order;

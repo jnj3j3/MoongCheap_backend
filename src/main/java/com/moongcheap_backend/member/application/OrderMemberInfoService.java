@@ -8,6 +8,8 @@ import com.moongcheap_backend.member.domain.ShippingAddress;
 import com.moongcheap_backend.member.infrastructure.MemberRepository;
 import com.moongcheap_backend.member.infrastructure.ShippingAddressRepository;
 import com.moongcheap_backend.member.presentation.dto.OrderMemberInfoDto;
+import java.util.Collection;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,5 +54,13 @@ public class OrderMemberInfoService {
         if (!memberRepository.existsByIdAndDeletedAtIsNull(memberId)) {
             throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Set<Long> getActiveMemberIds(Collection<Long> memberIds) {
+        if (memberIds.isEmpty()) {
+            return Set.of();
+        }
+        return memberRepository.findActiveMemberIds(memberIds);
     }
 }

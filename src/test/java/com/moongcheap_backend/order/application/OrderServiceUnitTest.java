@@ -3,6 +3,7 @@ package com.moongcheap_backend.order.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -77,18 +78,188 @@ class OrderServiceUnitTest {
     class AutoCreateOrderTest {
 
         @Test
+        void 수요_40건을_주문으로_변환해_20건씩_나누어_저장한다() {
+            List<Demand> demands = createDemands(40);
+            prepareOrderSource(demands);
+
+            orderService.autoCreateOrder(10L);
+
+            verify(ordersRepository, times(2)).saveAll(ordersCaptor.capture());
+            List<List<Orders>> batches = ordersCaptor.getAllValues();
+            assertThat(batches).hasSize(2).allSatisfy(batch -> assertThat(batch).hasSize(20));
+
+            List<Orders> savedOrders = batches.stream().flatMap(List::stream).toList();
+            assertThat(savedOrders).hasSize(40);
+            assertThat(savedOrders)
+                .extracting(Orders::getMemberId)
+                .containsExactlyElementsOf(IntStream.rangeClosed(1, 40)
+                    .mapToObj(Long::valueOf)
+                    .toList());
+            assertThat(savedOrders)
+                .extracting(Orders::getSum)
+                .containsExactlyElementsOf(IntStream.rangeClosed(1, 40).boxed().toList());
+            assertThat(savedOrders)
+                .extracting(Orders::getTotalAmount)
+                .containsExactlyElementsOf(IntStream.rangeClosed(1, 40)
+                    .map(quantity -> 10_000 * quantity)
+                    .boxed()
+                    .toList());
+            assertThat(savedOrders)
+                .extracting(Orders::getOrderNo)
+                .allMatch(orderNo -> orderNo.startsWith("ORD-"))
+                .doesNotHaveDuplicates();
+        }
+
+        @Test
         void 수요_20건을_주문으로_변환해_한번에_저장한다() {
-            GroupBuy groupBuy = org.mockito.Mockito.mock(GroupBuy.class);
-            Seller seller = org.mockito.Mockito.mock(Seller.class);
-            Product product = org.mockito.Mockito.mock(Product.class);
-            List<Demand> demands = IntStream.rangeClosed(1, 20)
+            List<Demand> demands = createDemands(20);
+            prepareOrderSource(demands);
+
+            orderService.autoCreateOrder(10L);
+
+            verify(ordersRepository).saveAll(ordersCaptor.capture());
+            assertThat(ordersCaptor.getValue()).hasSize(20);
+        }
+
+        @Test
+        void 수요_21건을_주문으로_변환해_20건과_1건으로_나누어_저장한다() {
+            List<Demand> demands = createDemands(21);
+            prepareOrderSource(demands);
+
+            orderService.autoCreateOrder(10L);
+
+            verify(ordersRepository, times(2)).saveAll(ordersCaptor.capture());
+            List<List<Orders>> batches = ordersCaptor.getAllValues();
+            assertThat(batches).hasSize(2);
+            assertThat(batches.get(0)).hasSize(20);
+            assertThat(batches.get(1)).hasSize(1);
+            assertThat(batches.stream().flatMap(List::stream)).hasSize(21);
+        }
+
+        @Test
+        void 수요_19건을_주문으로_변환해_한번에_저장한다() {
+            List<Demand> demands = createDemands(19);
+            prepareOrderSource(demands);
+
+            orderService.autoCreateOrder(10L);
+
+            verify(ordersRepository).saveAll(ordersCaptor.capture());
+            assertThat(ordersCaptor.getValue()).hasSize(19);
+        }
+
+        @Test
+        void 주문이_생성되면_배송_정보는_null이다() {
+            List<Demand> demands = createDemands(1);
+            prepareOrderSource(demands);
+
+            orderService.autoCreateOrder(10L);
+
+            verify(ordersRepository).saveAll(ordersCaptor.capture());
+            Orders createdOrder = ordersCaptor.getValue().getFirst();
+            assertThat(createdOrder)
+                .extracting(
+                    Orders::getShippingName,
+                    Orders::getPhoneNumber,
+                    Orders::getZipcode,
+                    Orders::getAddress,
+                    Orders::getAddressDetail,
+                    Orders::getShippingMemo,
+                    Orders::getShippingNumber
+                )
+                .containsOnlyNulls();
+        }
+
+        @Test
+        void 생성된_주문의_수량은_수요의_수량과_같다() {
+            Demand demand = org.mockito.Mockito.mock(Demand.class);
+            when(demand.getId()).thenReturn(100L);
+            when(demand.getMemberId()).thenReturn(1L);
+            when(demand.getQuantity()).thenReturn(7);
+            when(demand.getDesiredPriceMax()).thenReturn(10_000);
+            prepareOrderSource(List.of(demand));
+
+            orderService.autoCreateOrder(10L);
+
+            verify(ordersRepository).saveAll(ordersCaptor.capture());
+            Orders createdOrder = ordersCaptor.getValue().getFirst();
+            assertThat(createdOrder.getSum()).isEqualTo(demand.getQuantity());
+        }
+
+        @Test
+        void 생성된_주문의_단가와_배송비는_상품의_단가와_배송비와_같다() {
+            List<Demand> demands = createDemands(1);
+            Product product = prepareOrderSource(demands);
+
+            orderService.autoCreateOrder(10L);
+
+            verify(ordersRepository).saveAll(ordersCaptor.capture());
+            Orders createdOrder = ordersCaptor.getValue().getFirst();
+            assertThat(createdOrder.getPrice()).isEqualTo(product.getUnitPrice());
+            assertThat(createdOrder.getDeliveryFee()).isEqualTo(product.getShippingFee());
+        }
+
+        @Test
+        void 생성된_주문의_총금액은_수요_수량과_상품_단가를_곱한_금액이다() {
+            Demand demand = org.mockito.Mockito.mock(Demand.class);
+            when(demand.getId()).thenReturn(100L);
+            when(demand.getMemberId()).thenReturn(1L);
+            when(demand.getQuantity()).thenReturn(7);
+            when(demand.getDesiredPriceMax()).thenReturn(10_000);
+            Product product = prepareOrderSource(List.of(demand));
+
+            orderService.autoCreateOrder(10L);
+
+            verify(ordersRepository).saveAll(ordersCaptor.capture());
+            Orders createdOrder = ordersCaptor.getValue().getFirst();
+            assertThat(createdOrder.getTotalAmount())
+                .isEqualTo(createdOrder.getSum() * createdOrder.getPrice())
+                .isEqualTo(demand.getQuantity() * product.getUnitPrice());
+        }
+
+        @Test
+        void 생성된_주문의_수요_id는_원본_수요의_id와_같다() {
+            List<Demand> demands = createDemands(1);
+            prepareOrderSource(demands);
+
+            orderService.autoCreateOrder(10L);
+
+            verify(ordersRepository).saveAll(ordersCaptor.capture());
+            Orders createdOrder = ordersCaptor.getValue().getFirst();
+            assertThat(createdOrder.getDemandId()).isEqualTo(demands.getFirst().getId());
+        }
+
+        @Test
+        void 수요_39건을_주문으로_변환해_20건과_19건으로_나누어_저장한다() {
+            List<Demand> demands = createDemands(39);
+            prepareOrderSource(demands);
+
+            orderService.autoCreateOrder(10L);
+
+            verify(ordersRepository, times(2)).saveAll(ordersCaptor.capture());
+            List<List<Orders>> batches = ordersCaptor.getAllValues();
+            assertThat(batches).hasSize(2);
+            assertThat(batches.get(0)).hasSize(20);
+            assertThat(batches.get(1)).hasSize(19);
+            assertThat(batches.stream().flatMap(List::stream)).hasSize(39);
+        }
+
+        private List<Demand> createDemands(int count) {
+            return IntStream.rangeClosed(1, count)
                 .mapToObj(index -> {
                     Demand demand = org.mockito.Mockito.mock(Demand.class);
+                    when(demand.getId()).thenReturn((long) index);
                     when(demand.getMemberId()).thenReturn((long) index);
                     when(demand.getQuantity()).thenReturn(index);
+                    when(demand.getDesiredPriceMax()).thenReturn(10_000);
                     return demand;
                 })
                 .toList();
+        }
+
+        private Product prepareOrderSource(List<Demand> demands) {
+            GroupBuy groupBuy = org.mockito.Mockito.mock(GroupBuy.class);
+            Seller seller = org.mockito.Mockito.mock(Seller.class);
+            Product product = org.mockito.Mockito.mock(Product.class);
 
             when(groupBuyPublicService.getOrderSource(10L)).thenReturn(groupBuy);
             when(groupBuy.getSeller()).thenReturn(seller);
@@ -105,30 +276,11 @@ class OrderServiceUnitTest {
             when(product.getUnitPrice()).thenReturn(10_000);
             when(product.getShippingFee()).thenReturn(3_000);
             when(orderDemandService.getPaymentPendingForOrder(30L)).thenReturn(demands);
-
-            orderService.autoCreateOrder(10L);
-
-            verify(ordersRepository).saveAll(ordersCaptor.capture());
-            List<Orders> savedOrders = ordersCaptor.getValue();
-            assertThat(savedOrders).hasSize(20);
-            assertThat(savedOrders)
-                .extracting(Orders::getMemberId)
-                .containsExactlyElementsOf(IntStream.rangeClosed(1, 20)
-                    .mapToObj(Long::valueOf)
-                    .toList());
-            assertThat(savedOrders)
-                .extracting(Orders::getSum)
-                .containsExactlyElementsOf(IntStream.rangeClosed(1, 20).boxed().toList());
-            assertThat(savedOrders)
-                .extracting(Orders::getTotalAmount)
-                .containsExactlyElementsOf(IntStream.rangeClosed(1, 20)
-                    .map(quantity -> 10_000 * quantity + 3_000)
-                    .boxed()
-                    .toList());
-            assertThat(savedOrders)
-                .extracting(Orders::getOrderNo)
-                .allMatch(orderNo -> orderNo.startsWith("ORD-"))
-                .doesNotHaveDuplicates();
+            Set<Long> memberIds = demands.stream()
+                .map(Demand::getMemberId)
+                .collect(java.util.stream.Collectors.toSet());
+            when(orderMemberInfoService.getActiveMemberIds(memberIds)).thenReturn(memberIds);
+            return product;
         }
 
         @Test
@@ -157,12 +309,18 @@ class OrderServiceUnitTest {
             when(orderDemandService.getPaymentPendingForOrder(30L))
                 .thenReturn(List.of(demandWithPayMethod, demandWithoutPayMethod));
             when(demandWithPayMethod.getMemberId()).thenReturn(1L);
+            when(demandWithPayMethod.getId()).thenReturn(101L);
             when(demandWithPayMethod.getPayMethodId()).thenReturn(100L);
             when(demandWithPayMethod.getQuantity()).thenReturn(2);
+            when(demandWithPayMethod.getDesiredPriceMax()).thenReturn(10_000);
             when(demandWithoutPayMethod.getMemberId()).thenReturn(2L);
+            when(demandWithoutPayMethod.getId()).thenReturn(102L);
             when(demandWithoutPayMethod.getPayMethodId()).thenReturn(null);
             when(demandWithoutPayMethod.getQuantity()).thenReturn(1);
+            when(demandWithoutPayMethod.getDesiredPriceMax()).thenReturn(10_000);
             when(entityManager.getReference(BrandPayMethod.class, 100L)).thenReturn(payMethod);
+            when(orderMemberInfoService.getActiveMemberIds(Set.of(1L, 2L)))
+                .thenReturn(Set.of(1L, 2L));
 
             Void result = orderService.autoCreateOrder(10L);
 
@@ -173,10 +331,109 @@ class OrderServiceUnitTest {
             assertThat(savedOrders.get(0).getOrderNo()).startsWith("ORD-");
             assertThat(savedOrders.get(0).getMemberId()).isEqualTo(1L);
             assertThat(savedOrders.get(0).getBrandPayMethod()).isSameAs(payMethod);
-            assertThat(savedOrders.get(0).getTotalAmount()).isEqualTo(23_000);
+            assertThat(savedOrders.get(0).getTotalAmount()).isEqualTo(20_000);
             assertThat(savedOrders.get(1).getMemberId()).isEqualTo(2L);
             assertThat(savedOrders.get(1).getBrandPayMethod()).isNull();
-            assertThat(savedOrders.get(1).getTotalAmount()).isEqualTo(13_000);
+            assertThat(savedOrders.get(1).getTotalAmount()).isEqualTo(10_000);
+        }
+
+        @Test
+        void 상품_단가가_희망_최고가를_초과하는_수요는_주문에서_제외한다() {
+            Demand eligibleDemand = org.mockito.Mockito.mock(Demand.class);
+            Demand expensiveDemand = org.mockito.Mockito.mock(Demand.class);
+            when(eligibleDemand.getId()).thenReturn(101L);
+            when(eligibleDemand.getMemberId()).thenReturn(1L);
+            when(eligibleDemand.getQuantity()).thenReturn(2);
+            when(eligibleDemand.getDesiredPriceMax()).thenReturn(10_000);
+            when(expensiveDemand.getMemberId()).thenReturn(2L);
+            when(expensiveDemand.getDesiredPriceMax()).thenReturn(9_999);
+            prepareOrderSource(List.of(eligibleDemand, expensiveDemand));
+
+            orderService.autoCreateOrder(10L);
+
+            verify(ordersRepository).saveAll(ordersCaptor.capture());
+            assertThat(ordersCaptor.getValue())
+                .singleElement()
+                .extracting(Orders::getMemberId)
+                .isEqualTo(1L);
+        }
+
+        @Test
+        void 상품_단가가_모든_수요의_희망_최고가를_초과하면_주문을_생성하지_않는다() {
+            GroupBuy groupBuy = org.mockito.Mockito.mock(GroupBuy.class);
+            Seller seller = org.mockito.Mockito.mock(Seller.class);
+            Product product = org.mockito.Mockito.mock(Product.class);
+            Demand firstDemand = org.mockito.Mockito.mock(Demand.class);
+            Demand secondDemand = org.mockito.Mockito.mock(Demand.class);
+            when(groupBuyPublicService.getOrderSource(10L)).thenReturn(groupBuy);
+            when(groupBuy.getSeller()).thenReturn(seller);
+            when(groupBuy.getProduct()).thenReturn(product);
+            when(seller.isSellable()).thenReturn(true);
+            when(seller.getId()).thenReturn(20L);
+            when(product.isAwarded()).thenReturn(true);
+            when(product.getSellerId()).thenReturn(20L);
+            when(product.getThumbnailUrl()).thenReturn("https://example.com/image.jpg");
+            when(product.getUnitPrice()).thenReturn(10_000);
+            when(product.getShippingFee()).thenReturn(3_000);
+            when(product.getDemandBoardId()).thenReturn(30L);
+            when(firstDemand.getMemberId()).thenReturn(1L);
+            when(firstDemand.getDesiredPriceMax()).thenReturn(9_999);
+            when(secondDemand.getMemberId()).thenReturn(2L);
+            when(secondDemand.getDesiredPriceMax()).thenReturn(9_000);
+            when(orderDemandService.getPaymentPendingForOrder(30L))
+                .thenReturn(List.of(firstDemand, secondDemand));
+            when(orderMemberInfoService.getActiveMemberIds(Set.of(1L, 2L)))
+                .thenReturn(Set.of(1L, 2L));
+
+            orderService.autoCreateOrder(10L);
+
+            verify(ordersRepository, never()).saveAll(any());
+        }
+
+        @Test
+        void 탈퇴하지_않은_회원의_수요만_주문으로_생성한다() {
+            Demand activeMemberDemand = org.mockito.Mockito.mock(Demand.class);
+            Demand deletedMemberDemand = org.mockito.Mockito.mock(Demand.class);
+            when(activeMemberDemand.getId()).thenReturn(101L);
+            when(activeMemberDemand.getMemberId()).thenReturn(1L);
+            when(activeMemberDemand.getQuantity()).thenReturn(2);
+            when(activeMemberDemand.getDesiredPriceMax()).thenReturn(10_000);
+            when(deletedMemberDemand.getMemberId()).thenReturn(2L);
+            prepareOrderSource(List.of(activeMemberDemand, deletedMemberDemand));
+            when(orderMemberInfoService.getActiveMemberIds(Set.of(1L, 2L)))
+                .thenReturn(Set.of(1L));
+
+            orderService.autoCreateOrder(10L);
+
+            verify(ordersRepository).saveAll(ordersCaptor.capture());
+            assertThat(ordersCaptor.getValue())
+                .singleElement()
+                .extracting(Orders::getMemberId)
+                .isEqualTo(1L);
+        }
+
+        @Test
+        void 주문_가능한_상태의_수요가_없으면_주문을_생성하지_않는다() {
+            GroupBuy groupBuy = org.mockito.Mockito.mock(GroupBuy.class);
+            Seller seller = org.mockito.Mockito.mock(Seller.class);
+            Product product = org.mockito.Mockito.mock(Product.class);
+            when(groupBuyPublicService.getOrderSource(10L)).thenReturn(groupBuy);
+            when(groupBuy.getSeller()).thenReturn(seller);
+            when(groupBuy.getProduct()).thenReturn(product);
+            when(seller.isSellable()).thenReturn(true);
+            when(seller.getId()).thenReturn(20L);
+            when(product.isAwarded()).thenReturn(true);
+            when(product.getSellerId()).thenReturn(20L);
+            when(product.getThumbnailUrl()).thenReturn("https://example.com/image.jpg");
+            when(product.getUnitPrice()).thenReturn(10_000);
+            when(product.getShippingFee()).thenReturn(3_000);
+            when(product.getDemandBoardId()).thenReturn(30L);
+            when(orderDemandService.getPaymentPendingForOrder(30L)).thenReturn(List.of());
+            when(orderMemberInfoService.getActiveMemberIds(Set.of())).thenReturn(Set.of());
+
+            orderService.autoCreateOrder(10L);
+
+            verify(ordersRepository, never()).saveAll(any());
         }
     }
 
@@ -253,6 +510,58 @@ class OrderServiceUnitTest {
             assertOrderListResponse(result.getContent().getFirst());
         }
 
+        @Test
+        void 주문_25건을_페이지_크기_20으로_조회하면_첫_페이지는_20건이고_두번째는_5건이다() {
+            Pageable firstPageable = PageRequest.of(0, 20);
+            Pageable secondPageable = PageRequest.of(1, 20);
+            List<Orders> firstPageOrders = IntStream.rangeClosed(1, 20)
+                .mapToObj(index -> index == 1 ? order : createOrder(index))
+                .toList();
+            List<Orders> secondPageOrders = IntStream.rangeClosed(21, 25)
+                .mapToObj(this::createOrder)
+                .toList();
+            when(ordersRepository.findAllByMemberId(MEMBER_ID, firstPageable))
+                .thenReturn(new PageImpl<>(firstPageOrders, firstPageable, 25));
+            when(ordersRepository.findAllByMemberId(MEMBER_ID, secondPageable))
+                .thenReturn(new PageImpl<>(secondPageOrders, secondPageable, 25));
+
+            Page<OrderListResponse> firstPage =
+                orderService.viewOrderList(MEMBER_ID, OrderListTab.ALL, firstPageable);
+            Page<OrderListResponse> secondPage =
+                orderService.viewOrderList(MEMBER_ID, OrderListTab.ALL, secondPageable);
+
+            assertThat(firstPage.getNumber()).isZero();
+            assertThat(firstPage.getNumberOfElements()).isEqualTo(20);
+            assertThat(firstPage.getTotalElements()).isEqualTo(25);
+            assertThat(firstPage.getTotalPages()).isEqualTo(2);
+            assertThat(firstPage.isFirst()).isTrue();
+            assertThat(firstPage.isLast()).isFalse();
+
+            assertThat(secondPage.getNumber()).isEqualTo(1);
+            assertThat(secondPage.getNumberOfElements()).isEqualTo(5);
+            assertThat(secondPage.getTotalElements()).isEqualTo(25);
+            assertThat(secondPage.getTotalPages()).isEqualTo(2);
+            assertThat(secondPage.isFirst()).isFalse();
+            assertThat(secondPage.isLast()).isTrue();
+
+            verify(ordersRepository).findAllByMemberId(MEMBER_ID, firstPageable);
+            verify(ordersRepository).findAllByMemberId(MEMBER_ID, secondPageable);
+        }
+
+        private Orders createOrder(int index) {
+            Orders createdOrder = org.mockito.Mockito.mock(Orders.class);
+            when(createdOrder.getCreatedAt())
+                .thenReturn(LocalDateTime.of(2026, 9, 1, 12, 0));
+            when(createdOrder.getOrderNo()).thenReturn("ORD-" + index);
+            when(createdOrder.getBusinessName()).thenReturn("문치프 농장");
+            when(createdOrder.getOrderStatus()).thenReturn(OrderStatus.PAYMENT_COMPLETED);
+            when(createdOrder.getImageUrl()).thenReturn("image.jpg");
+            when(createdOrder.getProductName()).thenReturn("제주 감귤");
+            when(createdOrder.getSum()).thenReturn(2);
+            when(createdOrder.getTotalAmount()).thenReturn(20_000);
+            return createdOrder;
+        }
+
         private void assertOrderListResponse(OrderListResponse response) {
             assertThat(response.orderDate()).isEqualTo("2026-09-01");
             assertThat(response.orderNo()).isEqualTo(ORDER_NO);
@@ -322,16 +631,6 @@ class OrderServiceUnitTest {
         }
 
         @Test
-        void 상세주소가_비어있으면_기본주소만_반환한다() {
-            when(order.getAddress()).thenReturn("서울시 강남구");
-            when(order.getAddressDetail()).thenReturn(" ");
-
-            OrderDetailResponse result = orderService.viewOrderDetail(MEMBER_ID, ORDER_NO);
-
-            assertThat(result.shipping().addressMasked()).isEqualTo("서울시 강남구");
-        }
-
-        @Test
         void 두_주소가_null이면_null을_반환한다() {
             when(order.getAddress()).thenReturn(null);
             when(order.getAddressDetail()).thenReturn(null);
@@ -359,7 +658,7 @@ class OrderServiceUnitTest {
         }
 
         @Test
-        void 이미_취소된_주문은_멱등하게_처리한다() {
+        void 이미_취소된_주문은_상태를_변경하지_않고_정상_종료한다() {
             Orders order = org.mockito.Mockito.mock(Orders.class);
             when(ordersRepository.findByOrderNoAndMemberId(ORDER_NO, MEMBER_ID))
                 .thenReturn(Optional.of(order));
