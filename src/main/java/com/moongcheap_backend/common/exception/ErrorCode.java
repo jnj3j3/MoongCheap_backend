@@ -42,13 +42,15 @@ public enum ErrorCode {
     SHIPPING_ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "SHIP_001", "배송지를 찾을 수 없습니다."),
     SHIPPING_ADDRESS_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "SHIP_002", "배송지는 최대 5개까지 등록할 수 있습니다."),
     SHIPPING_ADDRESS_FORBIDDEN(HttpStatus.FORBIDDEN, "SHIP_003", "본인 소유의 배송지가 아닙니다."),
-    SHIPPING_ADDRESS_DEFAULT_CONFLICT(HttpStatus.CONFLICT, "SHIP_004", "기본 배송지 변경이 충돌했습니다. 다시 시도해주세요."),
+    SHIPPING_ADDRESS_DEFAULT_CONFLICT(HttpStatus.CONFLICT, "SHIP_004",
+        "기본 배송지 변경이 충돌했습니다. 다시 시도해주세요."),
 
     // 동시성
     CONCURRENT_REQUEST_CONFLICT(HttpStatus.CONFLICT, "COMMON_409", "요청이 충돌했습니다. 잠시 후 다시 시도해주세요."),
 
     // Product
     PRODUCT_CATALOG_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_001", "상품 카탈로그를 찾을 수 없습니다."),
+    PRODUCT_NOT_ORDERABLE(HttpStatus.CONFLICT, "PRODUCT_002", "현재 주문할 수 없는 상품입니다."),
 
     // Demand
     DEMAND_ALREADY_EXISTS(HttpStatus.CONFLICT, "DEMAND_001", "이미 진행 중인 수요 요청이 있습니다."),
@@ -61,13 +63,22 @@ public enum ErrorCode {
     DEMAND_ACCEPT_CATALOG_CONFLICT(HttpStatus.CONFLICT, "DEMAND_008", "제안된 상품과 동일한 상품의 진행 중인 수요가 이미 존재하여 승낙할 수 없습니다."),
     DEMAND_DESIRE_EXPIRED(HttpStatus.BAD_REQUEST, "DEMAND_009", "수요 희망 기간이 만료되었습니다."),
 
+    // Order
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_001", "주문을 찾을 수 없습니다."),
+    ORDER_CANNOT_CANCEL(HttpStatus.CONFLICT, "ORDER_002", "현재 상태에서는 주문을 취소할 수 없습니다."),
+    ORDER_CANNOT_SHIPPING(HttpStatus.CONFLICT, "ORDER_003", "현재 상태에서는 배송지를 입력할 수 없습니다."),
+
     // Seller
     SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "SELLER_001", "이미 판매자로 등록되어 있습니다."),
     BUSINESS_NUMBER_INVALID(HttpStatus.BAD_REQUEST, "SELLER_002", "사업자등록번호 형식이 올바르지 않습니다."),
     BUSINESS_NUMBER_DUPLICATED(HttpStatus.CONFLICT, "SELLER_003", "이미 등록된 사업자등록번호입니다."),
     SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "SELLER_004", "판매자 정보를 찾을 수 없습니다."),
     SELLER_MUTABLE_FIELD_ONLY(HttpStatus.BAD_REQUEST, "SELLER_007", "해당 필드는 수정할 수 없습니다."),
-    SELLER_NOT_APPROVED(HttpStatus.FORBIDDEN, "SELLER_008", "승인된 판매자만 사용할 수 있습니다.");
+    SELLER_NOT_APPROVED(HttpStatus.FORBIDDEN, "SELLER_008", "승인된 판매자만 사용할 수 있습니다."),
+
+    // GroupBuy
+    GROUPBUY_NOT_FOUND(HttpStatus.NOT_FOUND, "GROUPBUY_001", "공동구매를 찾을 수 없습니다."),
+    GROUPBUY_NOT_OPEN(HttpStatus.CONFLICT, "GROUPBUY_002", "현재 주문할 수 없는 공동구매입니다.");
 
     private final HttpStatus status;
     private final String code;
