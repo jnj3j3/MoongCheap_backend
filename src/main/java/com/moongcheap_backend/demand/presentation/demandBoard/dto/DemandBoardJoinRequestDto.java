@@ -12,10 +12,10 @@ public record DemandBoardJoinRequestDto(
     String extraRequirement,
 
     // DB 미저장 — 동의 여부만 검증
-    @AssertTrue Boolean autoPaymentAgreed,
-    @AssertTrue Boolean privacyCollectionAgreed,
-    @AssertTrue Boolean privacyThirdPartyAgreed,
-    @AssertTrue Boolean paymentAgencyTermsAgreed
+    @AssertTrue boolean autoPaymentAgreed,
+    @AssertTrue boolean privacyCollectionAgreed,
+    @AssertTrue boolean privacyThirdPartyAgreed,
+    @AssertTrue boolean paymentAgencyTermsAgreed
 ) {
 
 }

@@ -98,7 +98,7 @@ public class DemandQueryRepositoryImpl implements DemandQueryRepository {
             FROM demand
             WHERE member_id = :memberId
               AND status IN (%s)
-            ORDER BY created_at DESC, id DESC
+            ORDER BY desire_end_at ASC, id ASC
             LIMIT :limit OFFSET :offset
         ) d
         INNER JOIN product_catalog pc ON d.catalog_id = pc.id

@@ -29,6 +29,9 @@ public interface DemandRepository extends JpaRepository<Demand, Long> {
     boolean existsByMemberIdAndCatalogIdAndStatusIn(
         Long memberId, Long catalogId, Collection<DemandStatus> statuses);
 
+    boolean existsByMemberIdAndDemandBoardIdAndStatusIn(
+        Long memberId, Long demandBoardId, Collection<DemandStatus> statuses);
+
     @Modifying
     @Query(value = """
         UPDATE demand

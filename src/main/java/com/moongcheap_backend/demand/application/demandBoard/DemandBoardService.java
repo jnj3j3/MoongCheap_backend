@@ -50,8 +50,8 @@ public class DemandBoardService {
         DemandBoardSummaryDto summary = demandBoardQueryRepository.getDemandBoardItemsById(
                 demandBoardId)
             .orElseThrow(() -> new BusinessException(ErrorCode.DEMAND_BOARD_NOT_FOUND));
-        boolean isParticipating = demandRepository.existsByMemberIdAndCatalogIdAndStatusIn(
-            memberId, summary.catalogId(),
+        boolean isParticipating = demandRepository.existsByMemberIdAndDemandBoardIdAndStatusIn(
+            memberId, summary.demandBoardId(),
             List.of(DemandStatus.ASSIGNED, DemandStatus.PAYMENT_PENDING)
         );
         return DemandBoardDto.from(summary, isParticipating);

@@ -30,8 +30,8 @@ public class DemandBoardQueryRepositoryImpl implements DemandBoardQueryRepositor
         rs.getString("catalog_name"),
         rs.getInt("participant_count"),
         rs.getInt("seller_count"),
-        rs.getInt("board_price_min"),
-        rs.getInt("board_price_max"),
+        rs.getObject("board_price_min", Integer.class),
+        rs.getObject("board_price_max", Integer.class),
         rs.getObject("board_sale_end_at", LocalDateTime.class)
     );
 
@@ -60,7 +60,8 @@ public class DemandBoardQueryRepositoryImpl implements DemandBoardQueryRepositor
             SELECT *
             FROM demand_board
             WHERE %s
-            ORDER BY sale_end_at DESC, id DESC
+              AND sale_end_at > CURRENT_TIMESTAMP
+            ORDER BY sale_end_at ASC, id ASC
             LIMIT :limit OFFSET :offset
         ) d
         INNER JOIN product_catalog pc ON d.catalog_id = pc.id
@@ -129,9 +130,10 @@ public class DemandBoardQueryRepositoryImpl implements DemandBoardQueryRepositor
             FROM demand_board
             WHERE catalog_id = :catalogId
               AND status = 'GB_GATHERING'
+              AND sale_end_at > CURRENT_TIMESTAMP
               AND (:minPrice IS NULL OR price_max > :minPrice)
               AND (:maxPrice IS NULL OR price_min < :maxPrice)
-            ORDER BY sale_end_at DESC, id DESC
+            ORDER BY sale_end_at ASC, id ASC
             LIMIT :limit OFFSET :offset
         ) db
         """;
