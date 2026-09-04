@@ -1,12 +1,18 @@
 package com.moongcheap_backend.demand.domain.demandBoard;
 
 import com.moongcheap_backend.common.entity.BaseTimeEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -39,4 +45,8 @@ public class DemandBoard extends BaseTimeEntity {
 
     @Column(name = "sale_end_at", nullable = false)
     private LocalDateTime saleEndAt;
+
+    public void increaseParticipantCount() {
+        this.participantCount += 1;
+    }
 }
