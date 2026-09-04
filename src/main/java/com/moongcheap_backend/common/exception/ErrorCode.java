@@ -59,7 +59,7 @@ public enum ErrorCode {
     DEMAND_BOARD_CLOSED(HttpStatus.BAD_REQUEST, "DEMAND_006", "마감된 수요 보드입니다."),
     DEMAND_ACCEPT_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "DEMAND_007", "현재 상태에서는 대체 오퍼를 승낙할 수 없습니다."),
     DEMAND_ACCEPT_CATALOG_CONFLICT(HttpStatus.CONFLICT, "DEMAND_008", "제안된 상품과 동일한 상품의 진행 중인 수요가 이미 존재하여 승낙할 수 없습니다."),
-    DEMAND_DESIRE_EXPIRED(HttpStatus.BAD_REQUEST, "DEMAND_009", "수요 희망 기간이 만료되어 대체 오퍼를 승낙할 수 없습니다."),
+    DEMAND_DESIRE_EXPIRED(HttpStatus.BAD_REQUEST, "DEMAND_009", "수요 희망 기간이 만료되었습니다."),
 
     // Seller
     SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "SELLER_001", "이미 판매자로 등록되어 있습니다."),
