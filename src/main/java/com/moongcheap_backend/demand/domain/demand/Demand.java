@@ -109,5 +109,6 @@ public class Demand extends BaseTimeEntity {
 
     public void rejectOffer() {
         this.demandBoardId = null;
+        this.status = DemandStatus.UNASSIGNED;
     }
 }

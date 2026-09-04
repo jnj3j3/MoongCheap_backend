@@ -70,11 +70,13 @@ public class DemandService {
         DemandStatus.PAYMENT_PENDING
     );
 
+    @Transactional(readOnly = true)
     public DemandListDto.DemandItemDto get(Long memberId, Long demandId) {
         return demandQueryRepository.findDemandItemByIdAndMemberId(demandId, memberId)
             .orElseThrow(() -> new BusinessException(ErrorCode.DEMAND_NOT_FOUND));
     }
 
+    @Transactional(readOnly = true)
     public DemandListDto list(Long memberId, Pageable pageable) {
         Pageable fetchPageable = PageRequest.of(
             pageable.getPageNumber(), pageable.getPageSize() + 1, pageable.getSort());
@@ -113,8 +115,10 @@ public class DemandService {
                 memberId,
                 DemandStatus.SUBSTITUTE_OFFERED)
             .orElseThrow(() -> new BusinessException(ErrorCode.DEMAND_NOT_FOUND));
-        if (demand.getDesireEndAt().isBefore(LocalDateTime.now())
-            || demand.getDemandBoardId() == null) {
+        if (demand.getDesireEndAt().isBefore(LocalDateTime.now())) {
+            throw new BusinessException(ErrorCode.DEMAND_DESIRE_EXPIRED);
+        }
+        if (demand.getDemandBoardId() == null) {
             throw new BusinessException(ErrorCode.DEMAND_ACCEPT_NOT_ALLOWED);
         }
         DemandBoard demandBoard = demandBoardRepository.findById(demand.getDemandBoardId())
@@ -135,8 +139,10 @@ public class DemandService {
                 memberId,
                 DemandStatus.SUBSTITUTE_OFFERED)
             .orElseThrow(() -> new BusinessException(ErrorCode.DEMAND_NOT_FOUND));
-        if (demand.getDesireEndAt().isBefore(LocalDateTime.now())
-            || demand.getDemandBoardId() == null) {
+        if (demand.getDesireEndAt().isBefore(LocalDateTime.now())) {
+            throw new BusinessException(ErrorCode.DEMAND_DESIRE_EXPIRED);
+        }
+        if (demand.getDemandBoardId() == null) {
             throw new BusinessException(ErrorCode.DEMAND_ACCEPT_NOT_ALLOWED);
         }
         demand.rejectOffer();

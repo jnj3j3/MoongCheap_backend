@@ -47,7 +47,6 @@ CREATE INDEX "idx_demand_board_catalog_active"
     ON "demand_board" ("catalog_id")
     WHERE "status" IN ('GB_GATHERING', 'GB_ACTION_REQUIRED');
 
-DROP INDEX IF EXISTS "idx_demand_board_sale_end_at_active";
 
 CREATE INDEX "idx_demand_board_status_sale_end_at"
     ON "demand_board" ("status", "sale_end_at" DESC);

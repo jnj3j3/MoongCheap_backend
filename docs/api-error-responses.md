@@ -154,15 +154,16 @@
 #### `PATCH /api/members/me/demand/{demandId}/accept` — 대체 오퍼 승낙
 | HTTP | code | message |
 |------|------|---------|
-| 400 | DEMAND_007 | 현재 상태에서는 대체 오퍼를 승낙할 수 없습니다. |
+| 400 | DEMAND_007 | 현재 상태에서는 대체 오퍼를 승낙할 수 없습니다. (demandBoardId 미배정) |
+| 400 | DEMAND_009 | 수요 희망 기간이 만료되었습니다. |
 | 404 | DEMAND_002 | 수요 요청을 찾을 수 없습니다. |
 | 404 | DEMAND_004 | 수요 보드를 찾을 수 없습니다. |
-| 409 | DEMAND_001 | 이미 진행 중인 수요 요청이 있습니다. (제안된 상품 catalog 중복 시) |
 
 #### `PATCH /api/members/me/demand/{demandId}/reject` — 대체 오퍼 거절
 | HTTP | code | message |
 |------|------|---------|
-| 400 | DEMAND_007 | 현재 상태에서는 대체 오퍼를 승낙할 수 없습니다. |
+| 400 | DEMAND_007 | 현재 상태에서는 대체 오퍼를 거절할 수 없습니다. (demandBoardId 미배정) |
+| 400 | DEMAND_009 | 수요 희망 기간이 만료되었습니다. |
 | 404 | DEMAND_002 | 수요 요청을 찾을 수 없습니다. |
 
 ---
