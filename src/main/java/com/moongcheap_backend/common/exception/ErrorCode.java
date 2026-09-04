@@ -52,6 +52,13 @@ public enum ErrorCode {
 
     // Demand
     DEMAND_ALREADY_EXISTS(HttpStatus.CONFLICT, "DEMAND_001", "이미 진행 중인 수요 요청이 있습니다."),
+    DEMAND_NOT_FOUND(HttpStatus.NOT_FOUND, "DEMAND_002", "수요 요청을 찾을 수 없습니다."),
+    DEMAND_FORBIDDEN(HttpStatus.FORBIDDEN, "DEMAND_003", "본인의 수요 요청이 아닙니다."),
+    DEMAND_BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "DEMAND_004", "수요 보드를 찾을 수 없습니다."),
+    DEMAND_CANCEL_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "DEMAND_005", "현재 상태에서는 수요를 취소할 수 없습니다."),
+    DEMAND_BOARD_CLOSED(HttpStatus.BAD_REQUEST, "DEMAND_006", "마감된 수요 보드입니다."),
+    DEMAND_ACCEPT_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "DEMAND_007", "현재 상태에서는 대체 오퍼를 승낙할 수 없습니다."),
+    DEMAND_ACCEPT_CATALOG_CONFLICT(HttpStatus.CONFLICT, "DEMAND_008", "제안된 상품과 동일한 상품의 진행 중인 수요가 이미 존재하여 승낙할 수 없습니다."),
 
     // Seller
     SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "SELLER_001", "이미 판매자로 등록되어 있습니다."),

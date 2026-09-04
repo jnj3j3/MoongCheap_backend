@@ -28,7 +28,7 @@ public class ProductCatalogController {
         return productCatalogService.getHotProductCatalog(9);
     }
 
-    @Operation(summary = "상품 도감 정보 조회", description = "FN-B08-01. 상품 도감 상세 조회.")
+    @Operation(summary = "상품 도감 정보 조회", description = "FN-B08-01. 상품 도감 상세 조회. 수요 보드의 경우 별도 api 요청(/api/demand-boards/catalog/{catalogId}")
     @GetMapping("/{id}")
     public ProductCatalogDto getProductCatalogById(
         SessionPrincipal principal,

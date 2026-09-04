@@ -3,13 +3,22 @@ package com.moongcheap_backend.demand.application.demand;
 import com.moongcheap_backend.common.exception.BusinessException;
 import com.moongcheap_backend.common.exception.ErrorCode;
 import com.moongcheap_backend.demand.domain.demand.Demand;
+import com.moongcheap_backend.demand.domain.demand.DemandStatus;
+import com.moongcheap_backend.demand.domain.demandBoard.DemandBoard;
+import com.moongcheap_backend.demand.domain.demandBoard.DemandBoardStatus;
+import com.moongcheap_backend.demand.infrastructure.demand.DemandQueryRepository;
 import com.moongcheap_backend.demand.infrastructure.demand.DemandRepository;
 import com.moongcheap_backend.demand.infrastructure.demandBoard.DemandBoardRepository;
 import com.moongcheap_backend.demand.presentation.demand.dto.DemandCreateRequestDto;
+import com.moongcheap_backend.demand.presentation.demand.dto.DemandListDto;
 import com.moongcheap_backend.product.domain.productCatalog.ProductCatalogStatus;
 import com.moongcheap_backend.product.infrastructure.productCatalog.ProductCatalogRespository;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,13 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class DemandService {
 
     private final DemandRepository demandRepository;
-    private final DemandBoardRepository demandBoardRepository;
+    private final DemandQueryRepository demandQueryRepository;
     private final ProductCatalogRespository productCatalogRespository;
+    private final DemandBoardRepository demandBoardRepository;
 
     @Transactional
     public Long create(DemandCreateRequestDto request, Long memberId) {
         // todo: request.payMethodId 를 통해 status 상태 확인
-
         // catalog 삭제의 경우 매우 드물게 일어난다는 가정 하에 lock 제약을 걸지 않음
         boolean hasCatalog = productCatalogRespository
             .existsByIdAndStatus(request.catalogId(), ProductCatalogStatus.ACTIVE);
@@ -38,7 +47,7 @@ public class DemandService {
             .payMethodId(request.payMethodId())
             .desiredPriceMin(request.desiredPriceMin())
             .desiredPriceMax(request.desiredPriceMax())
-            .desireEndAt(LocalDateTime.now().plusDays(7))
+            .desireEndAt(LocalDateTime.now().plusDays(2))
             .quantity(request.quantity())
             .extraRequirement(request.extraRequirement())
             .isSubstitutable(request.isSubstitutable())
@@ -47,7 +56,90 @@ public class DemandService {
         return demandRepository.save(demand).getId();
     }
 
-    // todo: 참여 취소
+    private static final List<DemandStatus> ACTIVE_STATUSES = List.of(
+        DemandStatus.UNASSIGNED,
+        DemandStatus.SUBSTITUTE_OFFERED,
+        DemandStatus.ASSIGNED,
+        DemandStatus.PAYMENT_PENDING
+    );
 
+    private static final Set<DemandStatus> CANCELABLE_STATUSES = Set.of(
+        DemandStatus.UNASSIGNED,
+        DemandStatus.SUBSTITUTE_OFFERED,
+        DemandStatus.ASSIGNED,
+        DemandStatus.PAYMENT_PENDING
+    );
+
+    public DemandListDto.DemandItemDto get(Long memberId, Long demandId) {
+        return demandQueryRepository.findDemandItemByIdAndMemberId(demandId, memberId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.DEMAND_NOT_FOUND));
+    }
+
+    public DemandListDto list(Long memberId, Pageable pageable) {
+        Pageable fetchPageable = PageRequest.of(
+            pageable.getPageNumber(), pageable.getPageSize() + 1, pageable.getSort());
+        List<DemandListDto.DemandItemDto> items =
+            demandQueryRepository.findDemandItemsByMemberId(memberId, ACTIVE_STATUSES,
+                fetchPageable);
+        return DemandListDto.of(items, pageable);
+    }
+
+    /**
+     * DEMAND STATUS가 ASSIGNED, PAYMENT_PENDING 일 때에만 DEMANDBOARD의 참여자 수 감소 그 외에 CANCEL은 감소 X
+     */
+    @Transactional
+    public void cancel(Long memberId, Long demandId) {
+        Demand demand = demandRepository.findByIdForUpdate(demandId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.DEMAND_NOT_FOUND));
+        if (!demand.getMemberId().equals(memberId)) {
+            throw new BusinessException(ErrorCode.DEMAND_FORBIDDEN);
+        }
+        if (!CANCELABLE_STATUSES.contains(demand.getStatus())) {
+            throw new BusinessException(ErrorCode.DEMAND_CANCEL_NOT_ALLOWED);
+        }
+        boolean shouldDecrement = demand.getDemandBoardId() != null
+            && (demand.getStatus() == DemandStatus.ASSIGNED
+            || demand.getStatus() == DemandStatus.PAYMENT_PENDING);
+        demand.cancel();
+        if (shouldDecrement) {
+            demandBoardRepository.decrementParticipantCount(demand.getDemandBoardId());
+        }
+    }
+
+    @Transactional
+    public void acceptOffer(Long memberId, Long demandId) {
+        Demand demand = demandRepository.findByIdAndStatusForUpdate(
+                demandId,
+                memberId,
+                DemandStatus.SUBSTITUTE_OFFERED)
+            .orElseThrow(() -> new BusinessException(ErrorCode.DEMAND_NOT_FOUND));
+        if (demand.getDesireEndAt().isBefore(LocalDateTime.now())
+            || demand.getDemandBoardId() == null) {
+            throw new BusinessException(ErrorCode.DEMAND_ACCEPT_NOT_ALLOWED);
+        }
+        DemandBoard demandBoard = demandBoardRepository.findById(demand.getDemandBoardId())
+            .orElseThrow(() -> new BusinessException(ErrorCode.DEMAND_BOARD_NOT_FOUND));
+        int updated = demandBoardRepository.increaseParticipantCountIfActive(
+            demandBoard.getId(), DemandBoardStatus.GB_GATHERING);
+        if (updated == 0) {
+            demand.rejectOffer();
+        } else {
+            demand.acceptOffer();
+        }
+    }
+
+    @Transactional
+    public void rejectOffer(Long memberId, Long demandId) {
+        Demand demand = demandRepository.findByIdAndStatusForUpdate(
+                demandId,
+                memberId,
+                DemandStatus.SUBSTITUTE_OFFERED)
+            .orElseThrow(() -> new BusinessException(ErrorCode.DEMAND_NOT_FOUND));
+        if (demand.getDesireEndAt().isBefore(LocalDateTime.now())
+            || demand.getDemandBoardId() == null) {
+            throw new BusinessException(ErrorCode.DEMAND_ACCEPT_NOT_ALLOWED);
+        }
+        demand.rejectOffer();
+    }
 
 }

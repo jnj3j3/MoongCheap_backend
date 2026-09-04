@@ -38,6 +38,10 @@ out/
 
 ### Local only ###
 docs/concurrency.md
+docs/demand-query.md
+docs/demand-board-query-index.md
+docs/transaction-timeout.md
+docs/demand-expire-batch.md
 
 ### Environment ###
 .env
