@@ -98,4 +98,8 @@ public class Product extends BaseTimeEntity {
         this.description = description;
         this.returnPolicy = returnPolicy;
     }
+
+    public boolean isAwarded() {
+        return status == ProductStatus.AWARDED;
+    }
 }
