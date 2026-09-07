@@ -186,3 +186,17 @@
 | HTTP | code | message |
 |------|------|---------|
 | 404 | DEMAND_004 | 수요 보드를 찾을 수 없습니다. (GB_ACTION_REQUIRED 상태 아님 또는 미참여 포함) |
+
+---
+
+### GroupBuy
+
+#### `GET /api/group-buys` — 공동구매 목록 조회
+
+현재 별도의 비즈니스 에러가 없습니다.
+
+#### `GET /api/group-buys/{groupBuyId}` — 공동구매 상세 조회
+
+| HTTP | code         | message                       |
+|------|--------------|-------------------------------|
+| 404  | GROUPBUY_001 | 공동구매를 찾을 수 없습니다. |
