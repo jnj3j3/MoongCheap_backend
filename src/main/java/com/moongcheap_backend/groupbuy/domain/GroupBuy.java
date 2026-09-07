@@ -57,4 +57,22 @@ public class GroupBuy extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
     private GroupBuyStatus status;
+
+    public GroupBuy(
+        Seller seller,
+        Product product,
+        String title,
+        Integer targetCount,
+        Integer count,
+        LocalDateTime groupBuyEndAt,
+        GroupBuyStatus status
+    ) {
+        this.seller = seller;
+        this.product = product;
+        this.title = title;
+        this.targetCount = targetCount;
+        this.count = count;
+        this.groupBuyEndAt = groupBuyEndAt;
+        this.status = status;
+    }
 }

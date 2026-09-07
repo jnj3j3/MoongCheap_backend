@@ -17,6 +17,9 @@ public interface GroupBuyRepository extends JpaRepository<GroupBuy, Long> {
     @EntityGraph(attributePaths = "product")
     Page<GroupBuy> findAllByStatus(GroupBuyStatus status, Pageable pageable);
 
+    @EntityGraph(attributePaths = "product")
+    Optional<GroupBuy> findDetailById(Long groupBuyId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
         select gb
