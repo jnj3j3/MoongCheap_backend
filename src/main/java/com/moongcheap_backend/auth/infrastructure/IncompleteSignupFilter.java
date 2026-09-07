@@ -20,7 +20,8 @@ public class IncompleteSignupFilter extends OncePerRequestFilter {
 
     private static final Set<String> ALLOWED_PATHS = Set.of(
             "/api/auth/social-signup/complete",
-            "/api/auth/logout"
+            "/api/auth/logout",
+            "/api/members/nicknames/availability"
     );
 
     @Override
