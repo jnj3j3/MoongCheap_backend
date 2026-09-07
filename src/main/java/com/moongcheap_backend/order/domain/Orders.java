@@ -37,6 +37,7 @@ public class Orders extends BaseTimeEntity {
     private Long id;
 
     // 영문 대소문자, 숫자, 특수문자 -, _로 이루어진 6자 이상 64자 이하의 문자열
+    // 주문 번호에 대해 좀 더 고민이 필요할 듯.
     @Column(name = "order_no", nullable = false, unique = true, length = 64)
     private String orderNo;
 
