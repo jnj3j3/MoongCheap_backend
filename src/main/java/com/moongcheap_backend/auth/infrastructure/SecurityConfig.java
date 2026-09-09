@@ -51,7 +51,9 @@ public class SecurityConfig {
                     "/v3/api-docs",
                     "/v3/api-docs/**",
                     "/v3/api-docs.yaml",
-                    "/swagger-resources/**"
+                    "/swagger-resources/**",
+                    "/api/products-search/internal/**",
+                    "/api/products-search/internal"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
