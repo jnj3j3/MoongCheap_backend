@@ -8,10 +8,7 @@ public record ProductSearchDocument(
     String specSummary,
     Integer listPrice,
     String thumbnailUrl,
-    String status,
-    Integer volumeMl,
-    Integer weightG,
-    Integer packCount
+    String status
 ) {
 
     public static ProductSearchDocument from(ProductCatalog catalog) {
@@ -21,10 +18,7 @@ public record ProductSearchDocument(
             catalog.getSpecSummary(),
             catalog.getListPrice(),
             catalog.getThumbnailUrl(),
-            catalog.getStatus() != null ? catalog.getStatus().name() : null,
-            null,
-            null,
-            null
+            catalog.getStatus() != null ? catalog.getStatus().name() : null
         );
     }
 }

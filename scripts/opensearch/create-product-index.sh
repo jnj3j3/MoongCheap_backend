@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# 운영/스테이징 환경에서 product OpenSearch 인덱스와 별칭을 생성.
-# 매핑/설정 정의는 src/main/resources/opensearch/product-index.json 파일과 동일 소스를 사용.
+# 운영/스테이징 환경에서 product_catalog OpenSearch 인덱스와 별칭을 생성.
+# 매핑/설정 정의는 src/main/resources/opensearch/product-catalog-index.json 파일과 동일 소스를 사용.
 #
 # 사용법:
 #   ./scripts/opensearch/create-product-index.sh
@@ -19,12 +19,12 @@
 
 set -euo pipefail
 
-INDEX="product_v1"
-ALIAS="product"
+INDEX="product_catalog_v1"
+ALIAS="product_catalog"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-SETTINGS_FILE="${REPO_ROOT}/src/main/resources/opensearch/product-index.json"
+SETTINGS_FILE="${REPO_ROOT}/src/main/resources/opensearch/product-catalog-index.json"
 
 OPENSEARCH_URL="${OPENSEARCH_URL:-http://localhost:9200}"
 

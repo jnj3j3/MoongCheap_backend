@@ -126,8 +126,12 @@ public class ProductCatalogSearchRepository {
             log.warn("OpenSearch 검색 실패, PostgreSQL 폴백 keyword={} reason={}", keyword,
                 t.getMessage());
         }
+        String escaped = keyword.toLowerCase()
+            .replace("\\", "\\\\")
+            .replace("%", "\\%")
+            .replace("_", "\\_");
         return productCatalogRepository
-            .findByNameContainingWithOffset(keyword.toLowerCase(), from, size).stream()
+            .findByNameContainingWithOffset(escaped, from, size).stream()
             .map(ProductSearchDocument::from)
             .toList();
     }

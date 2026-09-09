@@ -13,7 +13,7 @@ public interface ProductCatalogRepository extends JpaRepository<ProductCatalog, 
 
     @Query(value = """
         SELECT * FROM product_catalog
-        WHERE LOWER(name) LIKE CONCAT('%', :name, '%')
+        WHERE LOWER(name) LIKE CONCAT('%', :name, '%') ESCAPE '\\'
           AND status = 'ACTIVE'
         ORDER BY id DESC
         LIMIT :limit OFFSET :offset

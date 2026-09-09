@@ -7,6 +7,8 @@ import com.moongcheap_backend.product.presentation.productSearch.dto.ProductSear
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -54,8 +56,8 @@ public class ProductSearchController {
     @GetMapping("/search")
     public ResponseEntity<ProductSearchResponse> search(
         @RequestParam String q,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "20") int size
+        @RequestParam(defaultValue = "0") @Min(0) int page,
+        @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size
     ) throws IOException {
         return ResponseEntity.ok(productService.search(q, page, size));
     }

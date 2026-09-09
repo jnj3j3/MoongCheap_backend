@@ -1,5 +1,6 @@
 package com.moongcheap_backend.product.infrastructure.productSearch;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
@@ -9,6 +10,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.ConnectException;
+import java.net.NoRouteToHostException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,9 +38,20 @@ public class ProductIndexInitializer implements CommandLineRunner {
     private static final String SETTINGS_RESOURCE = "opensearch/product-catalog-index.json";
 
     private final OpenSearchClient openSearchClient;
+    private final CircuitBreakerRegistry circuitBreakerRegistry;
 
     @Override
     public void run(String... args) throws Exception {
+        try {
+            initIndex();
+        } catch (ConnectException | SocketTimeoutException |
+                 NoRouteToHostException | UnknownHostException e) {
+            log.warn("OpenSearch 시작 시 연결 실패, 서킷 브레이커 OPEN 전환: {}", e.getMessage());
+            circuitBreakerRegistry.circuitBreaker("opensearch").transitionToOpenState();
+        }
+    }
+
+    private void initIndex() throws Exception {
         boolean indexExists = openSearchClient.indices()
             .exists(e -> e.index(INDEX_NAME))
             .value();
