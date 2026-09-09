@@ -63,9 +63,6 @@ public enum ErrorCode {
     DEMAND_ACCEPT_CATALOG_CONFLICT(HttpStatus.CONFLICT, "DEMAND_008", "제안된 상품과 동일한 상품의 진행 중인 수요가 이미 존재하여 승낙할 수 없습니다."),
     DEMAND_DESIRE_EXPIRED(HttpStatus.BAD_REQUEST, "DEMAND_009", "수요 희망 기간이 만료되었습니다."),
 
-    // Demand
-    DEMAND_ALREADY_EXISTS(HttpStatus.CONFLICT, "DEMAND_001", "이미 진행 중인 수요 요청이 있습니다."),
-
     // Order
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_001", "주문을 찾을 수 없습니다."),
     ORDER_CANNOT_CANCEL(HttpStatus.CONFLICT, "ORDER_002", "현재 상태에서는 주문을 취소할 수 없습니다."),
