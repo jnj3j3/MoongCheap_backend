@@ -43,6 +43,7 @@ docs/demand-board-query-index.md
 docs/transaction-timeout.md
 docs/demand-expire-batch.md
 docs/product-search-decisions.md
+docs/product-search.md
 
 ### Environment ###
 .env
